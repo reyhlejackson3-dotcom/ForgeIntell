@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Contracts Demo — ForgeIntellAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--orange:#e8520a;--orange-hot:#ff6520;--black:#080808;--dark:#101010;--card:#161616;--card2:#1c1c1c;--border:#272727;--white:#f0ede8;--muted:#888;--green:#22c55e;}
+body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;min-height:100vh;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--dark);}
+nav img{height:38px;} .back-btn{color:var(--muted);text-decoration:none;font-size:0.875rem;transition:color 0.2s;} .back-btn:hover{color:var(--white);}
+.db{background:#e8520a18;border:1px solid #e8520a30;color:var(--orange);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;padding:4px 12px;border-radius:20px;font-weight:600;}
+.hero{background:linear-gradient(135deg,#101010,#101218);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center;}
+.hero h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3.5rem);margin-bottom:0.5rem;}
+.hero h1 em{font-style:normal;color:var(--orange);} .hero p{color:var(--muted);font-size:0.95rem;max-width:500px;margin:0 auto;}
+main{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem;}
+.steps-wrap{display:flex;gap:0.5rem;margin-bottom:2rem;flex-wrap:wrap;}
+.step-pill{font-size:0.75rem;padding:0.4rem 1rem;border-radius:20px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;font-weight:500;}
+.step-pill.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+.view{display:none;animation:fu 0.25s ease;} .view.show{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:1.5rem;}
+.ch{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cht{display:flex;align-items:center;gap:0.75rem;}
+.ci{width:36px;height:36px;border-radius:8px;background:#e8520a18;border:1px solid #e8520a30;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.ct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;} .cs{font-size:0.75rem;color:var(--muted);}
+.cb{padding:1.5rem;}
+.field{margin-bottom:1.1rem;} .field label{display:block;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:0.4rem;}
+.field input,.field select,.field textarea{width:100%;background:var(--dark);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:'Barlow',sans-serif;font-size:0.95rem;padding:0.7rem 1rem;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange);} .field select option{background:#1a1a1a;} .field textarea{resize:vertical;min-height:80px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+@media(max-width:480px){.fr{grid-template-columns:1fr;}}
+.btn{background:var(--orange);color:#fff;border:none;border-radius:8px;padding:0.85rem 1.5rem;font-family:'Barlow',sans-serif;font-weight:600;font-size:0.95rem;cursor:pointer;transition:background 0.2s;} .btn:hover{background:var(--orange-hot);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:0.85rem 1.5rem;font-family:'Barlow',sans-serif;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.2s;} .btn-ghost:hover{color:var(--white);}
+/* Contract preview */
+.contract{background:#fff;color:#111;border-radius:12px;padding:2rem;font-family:'Barlow',sans-serif;}
+.contract-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;color:var(--orange);margin-bottom:0.25rem;}
+.contract-sub{font-size:0.75rem;color:#666;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:2px solid #e8520a;}
+.contract h2{font-family:'Barlow Condensed',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:1rem;color:#111;}
+.contract-row{display:flex;justify-content:space-between;font-size:0.875rem;padding:0.5rem 0;border-bottom:1px solid #eee;}
+.contract-row:last-child{border:none;}
+.ck{color:#666;} .cv{font-weight:600;color:#111;}
+.contract-terms{background:#f9f9f9;border-radius:8px;padding:1rem;margin:1.25rem 0;font-size:0.8rem;color:#555;line-height:1.6;}
+.sig-box{border:2px dashed #ddd;border-radius:8px;padding:1.5rem;text-align:center;margin-top:1.25rem;cursor:pointer;transition:all 0.2s;position:relative;min-height:80px;}
+.sig-box:hover{border-color:var(--orange);}
+.sig-prompt{font-size:0.85rem;color:#aaa;}
+.sig-canvas{width:100%;height:60px;}
+.sig-done{display:none;} .sig-done.show{display:block;}
+.sig-name-display{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:700;color:#111;letter-spacing:-0.02em;}
+.sig-date{font-size:0.75rem;color:#888;margin-top:4px;}
+/* Success */
+.success-box{background:#22c55e12;border:1px solid #22c55e30;border-radius:12px;padding:2rem;text-align:center;}
+.success-icon{font-size:3rem;margin-bottom:1rem;}
+.success-title{font-family:'Barlow Condensed',sans-serif;font-size:1.75rem;font-weight:900;color:var(--green);margin-bottom:0.5rem;}
+.success-sub{color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.6;}
+.success-detail{background:var(--dark);border-radius:10px;padding:1rem;font-size:0.8rem;color:var(--muted);text-align:left;margin-bottom:1rem;}
+.success-row{display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);} .success-row:last-child{border:none;}
+.skey{color:var(--muted);} .sval{color:var(--white);font-weight:500;}
+.ftag{text-align:center;padding:2rem;font-size:0.75rem;color:var(--muted);} .ftag a{color:var(--orange);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav><img src="logo.png" alt="ForgeIntellAI"><span class="db">Live Demo — Digital Contracts</span><a class="back-btn" href="index.html">← Back to site</a></nav>
+<div class="hero"><h1>Digital Contracts <em>Demo</em></h1><p>Walk through the whole flow: generate a contract as the business owner, then sign it as the client — all from your phone, no printing needed.</p></div>
+<main>
+  <div class="steps-wrap">
+    <div class="step-pill active" id="pill1" onclick="showView(1)">Step 1: Generate contract</div>
+    <div class="step-pill" id="pill2" onclick="showView(2)">Step 2: Client signs</div>
+    <div class="step-pill" id="pill3" onclick="showView(3)">Step 3: Both get PDF</div>
+  </div>
+
+  <!-- VIEW 1: Owner generates -->
+  <div class="view show" id="v1">
+    <div class="card">
+      <div class="ch"><div class="cht"><div class="ci">🏢</div><div><div class="ct">Owner View — Generate Contract</div><div class="cs">Fill in the job details and generate a contract in seconds</div></div></div></div>
+      <div class="cb">
+        <div class="fr">
+          <div class="field"><label>Client name</label><input id="cname" type="text" placeholder="John Smith" value="John Smith"></div>
+          <div class="field"><label>Client phone</label><input id="cphone" type="tel" placeholder="(720) 555-0199" value="(720) 555-0199"></div>
+        </div>
+        <div class="field"><label>Client email</label><input id="cemail" type="email" placeholder="john@email.com" value="john@email.com"></div>
+        <div class="field"><label>Property address</label><input id="caddr" type="text" placeholder="123 Main St, Denver, CO" value="456 Maple Ave, Denver, CO 80203"></div>
+        <div class="fr">
+          <div class="field"><label>Job type</label><select id="cjob"><option value="Full Roof Replacement">Full Roof Replacement</option><option>Roof Repair</option><option>Gutter Installation</option><option>Storm Damage Repair</option></select></div>
+          <div class="field"><label>Total price</label><input id="cprice" type="text" placeholder="$9,500" value="$9,500"></div>
+        </div>
+        <div class="fr">
+          <div class="field"><label>Start date</label><input id="cstart" type="date"></div>
+          <div class="field"><label>Estimated completion</label><input id="cend" type="date"></div>
+        </div>
+        <div class="field"><label>Scope of work</label><textarea id="cscope" placeholder="Describe what's included...">Remove existing shingles, inspect decking, replace damaged decking as needed, install new 30-year architectural shingles, replace all flashing, clean up and haul away all debris.</textarea></div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button class="btn" onclick="generateContract()">Generate contract →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: Client signs -->
+  <div class="view" id="v2">
+    <div class="card">
+      <div class="ch"><div class="cht"><div class="ci">📱</div><div><div class="ct">Client View — Sign on Phone</div><div class="cs">This is the link the client receives via text or email</div></div></div></div>
+      <div class="cb">
+        <div class="contract" id="contract-preview">
+          <div class="contract-logo">Apex Roofing</div>
+          <div class="contract-sub">Licensed & Insured · Denver, CO · (720) 555-0190</div>
+          <h2>Service Agreement</h2>
+          <div id="cp-rows"></div>
+          <div class="contract-terms">
+            <strong>Terms & Conditions:</strong> 50% deposit due upon signing. Remaining balance due upon completion. Apex Roofing warrants all materials and labor for 5 years. Client agrees to provide reasonable access to property. Apex Roofing is not responsible for damage caused by pre-existing conditions. This agreement constitutes the entire understanding between both parties.
+          </div>
+          <div class="sig-box" id="sig-box" onclick="sign()">
+            <div class="sig-prompt" id="sig-prompt">👆 Tap here to sign</div>
+            <div class="sig-done" id="sig-done">
+              <div class="sig-name-display" id="sig-name-display">John Smith</div>
+              <div class="sig-date" id="sig-date"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap;">
+          <button class="btn-ghost" onclick="showView(1)">← Back</button>
+          <button class="btn" id="confirm-btn" onclick="confirmSign()" disabled style="opacity:0.5;">Sign & submit contract</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 3: Success -->
+  <div class="view" id="v3">
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Contract Signed!</div>
+      <div class="success-sub">Both parties have been sent a signed PDF copy automatically. The contract is now stored in your archive — searchable forever.</div>
+      <div class="success-detail" id="success-detail"></div>
+      <button class="btn" style="width:100%;margin-bottom:0.75rem;" onclick="alert('In the live version this downloads the signed PDF contract instantly.')">Download signed PDF</button>
+      <button class="btn-ghost" style="width:100%;" onclick="resetDemo()">↺ Start a new contract</button>
+    </div>
+    <div class="ftag">Demo by <a href="index.html">ForgeIntellAI</a> — <a href="../index.html#contact">Get this for your business →</a></div>
+  </div>
+</main>
+<script>
+let signed=false;
+const cd={};
+function showView(n){
+  [1,2,3].forEach(i=>{
+    document.getElementById('v'+i).classList.remove('show');
+    document.getElementById('pill'+i).classList.remove('active');
+  });
+  document.getElementById('v'+n).classList.add('show');
+  document.getElementById('pill'+n).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function generateContract(){
+  cd.name=document.getElementById('cname').value||'John Smith';
+  cd.phone=document.getElementById('cphone').value||'(720) 555-0199';
+  cd.email=document.getElementById('cemail').value||'john@email.com';
+  cd.addr=document.getElementById('caddr').value||'456 Maple Ave, Denver, CO';
+  cd.job=document.getElementById('cjob').value||'Full Roof Replacement';
+  cd.price=document.getElementById('cprice').value||'$9,500';
+  cd.start=document.getElementById('cstart').value||'TBD';
+  cd.end=document.getElementById('cend').value||'TBD';
+  cd.scope=document.getElementById('cscope').value||'As discussed.';
+  const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const rows=[
+    ['Contract date',today],['Client name',cd.name],['Client phone',cd.phone],
+    ['Property address',cd.addr],['Job type',cd.job],['Total price',cd.price],
+    ['Start date',cd.start||'To be confirmed'],['Est. completion',cd.end||'To be confirmed'],
+    ['Scope of work',cd.scope.substring(0,80)+'...'],['Deposit (50%)',cd.price?'$'+Math.round(parseInt(cd.price.replace(/\D/g,''))/2).toLocaleString():'TBD'],
+  ];
+  document.getElementById('cp-rows').innerHTML=rows.map(([k,v])=>`<div class="contract-row"><span class="ck">${k}</span><span class="cv">${v}</span></div>`).join('');
+  document.getElementById('sig-name-display').textContent=cd.name;
+  signed=false;
+  document.getElementById('sig-prompt').style.display='block';
+  document.getElementById('sig-done').classList.remove('show');
+  document.getElementById('confirm-btn').disabled=true;
+  document.getElementById('confirm-btn').style.opacity='0.5';
+  showView(2);
+}
+function sign(){
+  if(signed)return;signed=true;
+  document.getElementById('sig-prompt').style.display='none';
+  document.getElementById('sig-done').classList.add('show');
+  document.getElementById('sig-date').textContent='Signed: '+new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+  document.getElementById('confirm-btn').disabled=false;
+  document.getElementById('confirm-btn').style.opacity='1';
+}
+function confirmSign(){
+  const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('success-detail').innerHTML=[
+    ['Client',cd.name],['Job',cd.job],['Total',cd.price],['Signed',today],
+    ['PDF sent to',cd.email],['Also sent to','reyhlejackson3@gmail.com'],['Archived','Yes — searchable in dashboard'],
+  ].map(([k,v])=>`<div class="success-row"><span class="skey">${k}</span><span class="sval">${v}</span></div>`).join('');
+  showView(3);
+}
+function resetDemo(){signed=false;showView(1);}
+// Set default dates
+const today=new Date();
+const nextWeek=new Date(today.getTime()+7*24*60*60*1000);
+const twoWeeks=new Date(today.getTime()+14*24*60*60*1000);
+document.getElementById('cstart').value=nextWeek.toISOString().split('T')[0];
+document.getElementById('cend').value=twoWeeks.toISOString().split('T')[0];
+</script>
+</body>
+</html>
