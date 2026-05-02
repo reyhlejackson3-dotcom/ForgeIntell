@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Receptionist Demo — ForgeIntellAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--orange:#e8520a;--orange-hot:#ff6520;--black:#080808;--dark:#101010;--card:#161616;--card2:#1c1c1c;--border:#272727;--border2:#333;--white:#f0ede8;--muted:#888;--green:#22c55e;}
+body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;min-height:100vh;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--dark);}
+nav img{height:38px;}
+.back-btn{color:var(--muted);text-decoration:none;font-size:0.875rem;transition:color 0.2s;}
+.back-btn:hover{color:var(--white);}
+.db{background:#e8520a18;border:1px solid #e8520a30;color:var(--orange);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;padding:4px 12px;border-radius:20px;font-weight:600;}
+
+/* HERO */
+.hero{padding:3.5rem 2rem;background:linear-gradient(135deg,#101010,#1a1208);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:960px;margin:0 auto;}
+.eyebrow{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--orange);font-weight:600;margin-bottom:0.75rem;}
+.hero-top{display:grid;grid-template-columns:1.1fr 0.9fr;gap:3.5rem;align-items:center;margin-bottom:3rem;}
+@media(max-width:680px){.hero-top{grid-template-columns:1fr;gap:1.5rem;}}
+h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(2.25rem,5.5vw,3.75rem);line-height:0.95;margin-bottom:1rem;letter-spacing:-0.01em;}
+h1 em{font-style:normal;color:var(--orange);}
+.hero-desc{color:var(--muted);font-size:0.95rem;line-height:1.75;margin-bottom:1rem;}
+
+/* CHANNEL PILLS */
+.channels{display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem;}
+.channel{display:flex;align-items:center;gap:0.5rem;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:0.5rem 1rem;font-size:0.8rem;font-weight:500;}
+.channel.phone{border-color:#22c55e40;background:#22c55e10;color:var(--green);}
+.channel.chat{border-color:#e8520a40;background:#e8520a10;color:var(--orange);}
+.channel.web{border-color:#3b82f640;background:#3b82f610;color:#60a5fa;}
+.ch-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ch-dot.green{background:var(--green);}
+.ch-dot.orange{background:var(--orange);}
+.ch-dot.blue{background:#60a5fa;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--orange);line-height:1;}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:3px;line-height:1.4;}
+
+/* HOW IT WORKS BANNER */
+.how-banner{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:2.5rem;}
+.how-banner-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--orange);font-weight:600;margin-bottom:1rem;}
+.how-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;position:relative;}
+.how-step{padding:0 1rem 0 0;position:relative;}
+.how-step:not(:last-child)::after{content:'→';position:absolute;right:-4px;top:12px;color:var(--muted);font-size:0.9rem;}
+.how-num{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;color:var(--border2);margin-bottom:4px;}
+.how-text{font-size:0.8rem;color:var(--muted);line-height:1.5;}
+.how-text strong{color:var(--white);display:block;margin-bottom:2px;}
+
+/* FEATURES */
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1rem;}
+.feat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;display:flex;gap:0.85rem;}
+.ficon{width:36px;height:36px;border-radius:8px;background:#e8520a18;border:1px solid #e8520a30;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.ficon.green{background:#22c55e18;border-color:#22c55e30;}
+.ftitle{font-weight:600;font-size:0.875rem;margin-bottom:4px;}
+.fdesc{font-size:0.8rem;color:var(--muted);line-height:1.5;}
+
+/* PHONE HIGHLIGHT */
+.phone-highlight{background:linear-gradient(135deg,#22c55e12,#22c55e06);border:1px solid #22c55e30;border-radius:14px;padding:1.5rem;margin-top:1rem;display:flex;gap:1.25rem;align-items:flex-start;}
+.ph-icon{font-size:2rem;flex-shrink:0;}
+.ph-title{font-family:'Barlow Condensed',sans-serif;font-size:1.25rem;font-weight:800;color:var(--green);margin-bottom:0.4rem;}
+.ph-desc{font-size:0.875rem;color:var(--muted);line-height:1.6;}
+.ph-desc strong{color:var(--white);}
+
+/* CHAT SECTION */
+.chat-section{padding:2.5rem 2rem;}
+.chat-inner{max-width:680px;margin:0 auto;}
+.chat-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--orange);font-weight:600;margin-bottom:1rem;text-align:center;}
+.chat-box{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.chat-hdr{background:var(--card2);border-bottom:1px solid var(--border);padding:1rem 1.25rem;display:flex;align-items:center;gap:0.75rem;}
+.av{width:40px;height:40px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.chat-name{font-weight:600;font-size:0.9rem;}
+.chat-status{font-size:0.75rem;color:var(--green);display:flex;align-items:center;gap:0.4rem;}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.channel-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);}
+.ctab{flex:1;padding:0.6rem;font-size:0.78rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.4rem;border-bottom:2px solid transparent;}
+.ctab.active{color:var(--orange);border-bottom-color:var(--orange);background:#e8520a08;}
+.tab-content{display:none;} .tab-content.active{display:flex;flex-direction:column;}
+.messages{padding:1.25rem;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;max-height:400px;min-height:180px;}
+.msg{display:flex;gap:0.6rem;animation:mi 0.2s ease;}
+@keyframes mi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse;}
+.mav{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;}
+.mav.ai{background:var(--orange);color:#fff;}
+.mav.user{background:var(--border2);color:var(--white);}
+.bub{max-width:82%;padding:0.75rem 1rem;border-radius:12px;font-size:0.875rem;line-height:1.6;}
+.bub.ai{background:var(--card2);border:1px solid var(--border);border-top-left-radius:3px;color:var(--white);}
+.bub.user{background:var(--orange);color:#fff;border-top-right-radius:3px;}
+.typing-bub{display:flex;gap:4px;align-items:center;padding:0.75rem 1rem;}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:tb 1.2s infinite;}
+.tdot:nth-child(2){animation-delay:0.2s;} .tdot:nth-child(3){animation-delay:0.4s;}
+@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.sugs{display:flex;flex-wrap:wrap;gap:0.5rem;padding:0 1.25rem 1rem;}
+.sug{background:transparent;border:1px solid var(--border2);border-radius:20px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:0.78rem;padding:5px 12px;cursor:pointer;transition:all 0.15s;}
+.sug:hover{border-color:var(--orange);color:var(--orange);}
+.inp-wrap{border-top:1px solid var(--border);padding:1rem;display:flex;gap:0.75rem;align-items:flex-end;}
+.inp{flex:1;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:'Barlow',sans-serif;font-size:0.9rem;padding:0.75rem 1rem;outline:none;resize:none;min-height:44px;max-height:120px;transition:border-color 0.2s;line-height:1.4;}
+.inp:focus{border-color:var(--orange);}
+.sbtn{background:var(--orange);color:#fff;border:none;border-radius:10px;width:44px;height:44px;cursor:pointer;transition:background 0.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.sbtn:hover{background:var(--orange-hot);}
+.sbtn:disabled{background:var(--border2);cursor:default;}
+
+/* PHONE TAB */
+.phone-tab-content{padding:2rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1.25rem;}
+.phone-icon-big{font-size:3rem;}
+.phone-tab-title{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;}
+.phone-tab-desc{font-size:0.875rem;color:var(--muted);line-height:1.7;max-width:420px;}
+.phone-num-mock{background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:1rem 2rem;font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:700;color:var(--green);letter-spacing:0.05em;}
+.phone-steps{display:flex;flex-direction:column;gap:0.6rem;width:100%;text-align:left;}
+.phone-step{display:flex;gap:0.75rem;align-items:flex-start;background:var(--card2);border-radius:10px;padding:0.75rem 1rem;font-size:0.825rem;}
+.pstep-num{color:var(--orange);font-weight:700;flex-shrink:0;font-size:0.9rem;}
+.pstep-text{color:var(--muted);line-height:1.5;}
+.pstep-text strong{color:var(--white);}
+
+.note{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;font-size:0.8rem;color:var(--muted);margin-top:1rem;line-height:1.6;}
+.note strong{color:var(--white);}
+.ftag{text-align:center;padding:1.5rem;font-size:0.75rem;color:var(--muted);}
+.ftag a{color:var(--orange);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav>
+  <img src="logo.png" alt="ForgeIntellAI">
+  <span class="db">Live Demo — AI Receptionist</span>
+  <a class="back-btn" href="index.html">← Back to site</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">AI Receptionist</div>
+        <h1>Your business.<br><em>Always answered.</em></h1>
+        <p class="hero-desc">A fully custom AI receptionist trained on your business — your services, pricing, service area, and policies. Customers can <strong style="color:var(--white)">call and speak to it by phone</strong> or chat with it on your website. It qualifies leads, answers questions, and books callbacks 24/7 — while you're on the job, asleep, or anywhere else.</p>
+        <div class="channels">
+          <div class="channel phone"><div class="ch-dot green"></div>Phone calls — speak to it live</div>
+          <div class="channel chat"><div class="ch-dot orange"></div>Website chat widget</div>
+          <div class="channel web"><div class="ch-dot blue"></div>Text / SMS</div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-val">24/7</div><div class="stat-label">Answers calls & chats around the clock</div></div>
+        <div class="stat-box"><div class="stat-val">$0</div><div class="stat-label">Cost per call or conversation</div></div>
+        <div class="stat-box"><div class="stat-val">100%</div><div class="stat-label">Leads captured, nothing slips through</div></div>
+        <div class="stat-box"><div class="stat-val">3–5</div><div class="stat-label">Days to go live for your client</div></div>
+      </div>
+    </div>
+
+    <!-- PHONE HIGHLIGHT -->
+    <div class="phone-highlight">
+      <div class="ph-icon">📞</div>
+      <div>
+        <div class="ph-title">Answers real phone calls — not just chat</div>
+        <p class="ph-desc">Each client gets a <strong>dedicated phone number</strong> powered by their AI receptionist. Customers call it like any business line. The AI answers instantly, speaks naturally, understands what they need, and handles the full conversation — pricing questions, booking a callback, reporting damage, anything. <strong>No hold music. No voicemail. No missed jobs.</strong></p>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-banner" style="margin-top:1.5rem;">
+      <div class="how-banner-title">How it works for your clients</div>
+      <div class="how-steps">
+        <div class="how-step"><div class="how-num">01</div><div class="how-text"><strong>We train it</strong>Feed us their services, pricing, FAQs, and policies. Takes one form.</div></div>
+        <div class="how-step"><div class="how-num">02</div><div class="how-text"><strong>We set it up</strong>Custom phone number + website chat widget, live in 3–5 days.</div></div>
+        <div class="how-step"><div class="how-num">03</div><div class="how-text"><strong>It answers everything</strong>Calls, chats, texts — 24/7, speaks their brand perfectly.</div></div>
+        <div class="how-step"><div class="how-num">04</div><div class="how-text"><strong>Owner gets alerts</strong>Every lead summary hits their phone the moment a call ends.</div></div>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="feats" style="margin-top:1.5rem;">
+      <div class="feat"><div class="ficon green">📞</div><div><div class="ftitle">Real phone number included</div><div class="fdesc">Every client gets a dedicated line. Customers call it — AI answers live, speaks naturally, handles the full conversation.</div></div></div>
+      <div class="feat"><div class="ficon">💬</div><div><div class="ftitle">Website chat widget</div><div class="fdesc">Embeds on their site in one line of code. Same AI, same knowledge — available on every page 24/7.</div></div></div>
+      <div class="feat"><div class="ficon">🧠</div><div><div class="ftitle">Trained on their whole business</div><div class="fdesc">Services, pricing, service area, FAQs, warranties, team info. Answers anything a customer might ask.</div></div></div>
+      <div class="feat"><div class="ficon green">⚡</div><div><div class="ftitle">Qualifies every lead</div><div class="fdesc">Asks the right questions before the owner ever calls back. They know exactly what the customer needs.</div></div></div>
+      <div class="feat"><div class="ficon">📅</div><div><div class="ftitle">Books callbacks & appointments</div><div class="fdesc">Collects name, number, address, and preferred time. Fires an instant summary alert to the owner's phone.</div></div></div>
+      <div class="feat"><div class="ficon">🔧</div><div><div class="ftitle">Sounds like their team</div><div class="fdesc">Custom name, tone, and personality. Feels like a real employee — not a generic robot.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO SECTION -->
+<div class="chat-section">
+  <div class="chat-inner">
+    <div class="chat-label">↓ Live demo — Apex Roofing AI receptionist</div>
+    <div class="chat-box">
+      <div class="chat-hdr">
+        <div class="av">🏠</div>
+        <div>
+          <div class="chat-name">Apex Roofing — AI Receptionist</div>
+          <div class="chat-status"><div class="sdot"></div>Online now · Answers calls & chat 24/7</div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="channel-tabs">
+        <button class="ctab active" onclick="switchTab('chat')">💬 Chat demo — try it now</button>
+        <button class="ctab" onclick="switchTab('phone')">📞 How the phone system works</button>
+      </div>
+
+      <!-- CHAT TAB -->
+      <div class="tab-content active" id="tab-chat">
+        <div class="messages" id="msgs">
+          <div class="msg">
+            <div class="mav ai">AR</div>
+            <div class="bub ai">Hey there! Thanks for reaching out to Apex Roofing. I'm available 24/7 to help — whether you need a free estimate, have questions about our services, or want to report storm damage. What can I help you with today?</div>
+          </div>
+        </div>
+        <div class="sugs" id="sugs">
+          <button class="sug" onclick="useSug('How much does a roof replacement cost?')">How much does a roof replacement cost?</button>
+          <button class="sug" onclick="useSug('I have hail damage from last night')">I have hail damage from last night</button>
+          <button class="sug" onclick="useSug('Can I get a free estimate?')">Can I get a free estimate?</button>
+          <button class="sug" onclick="useSug('What areas do you cover?')">What areas do you cover?</button>
+        </div>
+        <div class="inp-wrap">
+          <textarea class="inp" id="inp" placeholder="Type your message..." rows="1" onkeydown="handleKey(event)" oninput="resize(this)"></textarea>
+          <button class="sbtn" id="sbtn" onclick="send()">➤</button>
+        </div>
+      </div>
+
+      <!-- PHONE TAB -->
+      <div class="tab-content" id="tab-phone">
+        <div class="phone-tab-content">
+          <div class="phone-icon-big">📞</div>
+          <div class="phone-tab-title">The phone system — how it actually works</div>
+          <p class="phone-tab-desc">When we build this for a client, they get a real dedicated phone number. Customers call it — the AI picks up instantly, speaks naturally, and handles the full conversation. Here's the flow:</p>
+          <div class="phone-num-mock">(720) 555-0190 — AI answers</div>
+          <div class="phone-steps">
+            <div class="phone-step"><div class="pstep-num">1.</div><div class="pstep-text"><strong>Customer calls the business number</strong> — AI picks up on the first ring, 24/7. No hold music, no voicemail, no missed calls.</div></div>
+            <div class="phone-step"><div class="pstep-num">2.</div><div class="pstep-text"><strong>AI introduces itself by the business name</strong> — "Thanks for calling Apex Roofing! How can I help you today?" Sounds professional and natural.</div></div>
+            <div class="phone-step"><div class="pstep-num">3.</div><div class="pstep-text"><strong>Full two-way conversation</strong> — answers pricing questions, service area, availability, handles storm damage calls, emergency situations — anything the business is trained on.</div></div>
+            <div class="phone-step"><div class="pstep-num">4.</div><div class="pstep-text"><strong>Collects lead details</strong> — name, phone, address, what they need, preferred callback time. All captured automatically.</div></div>
+            <div class="phone-step"><div class="pstep-num">5.</div><div class="pstep-text"><strong>Owner gets an instant text alert</strong> the moment the call ends — full summary of who called, what they need, and their contact info. Ready to call back.</div></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);text-align:center;line-height:1.6;">The chat demo to the left uses the exact same AI brain as the phone system — same knowledge, same personality. The phone version just speaks out loud instead of typing.</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="note">
+      <strong>What you sell your client:</strong> A dedicated AI receptionist that answers their phone calls AND their website chat, trained completely on their business. Customers can call and speak to it live or chat on the site. Every lead gets captured and sent to the owner instantly. Setup in 3–5 days. <strong>$500 setup · $500/month.</strong>
+    </div>
+    <div class="ftag">Demo by <a href="index.html">ForgeIntellAI</a> — <a href="index.html#contact">Get this for your business →</a></div>
+  </div>
+</div>
+
+<script>
+const SYS = `You are the AI receptionist for Apex Roofing, a professional roofing company in Denver, Colorado. You answer both phone calls and website chat — the demo here is the chat version, but the real system also answers live phone calls. You are warm, helpful, and professional.
+
+ABOUT APEX ROOFING:
+- Location: Denver, CO — serving Denver metro, Aurora, Lakewood, Arvada, Westminster, Thornton, Centennial, Parker, Highlands Ranch
+- Phone: (720) 555-0190
+- Licensed and insured in Colorado, 12 years in business
+- Owner: Mike Reynolds, crew of 8
+
+SERVICES & PRICING:
+- Full roof replacement: $6,000–$25,000 (size, pitch, material)
+- Roof repair: $300–$3,000
+- Hail/storm damage inspection: Free — work with all insurers
+- Gutter installation: $800–$3,500
+- Emergency tarping: $200–$500 same-day
+- Materials: asphalt shingles (25-30yr), metal (40-50yr), tile (50yr+)
+
+PROCESS: Free inspection → quote in 24hrs → 50% deposit → 1-3 day job → walkthrough
+BOOKING: ~2 weeks out for non-emergency. Emergencies: 24/7 at (720) 555-0190
+INSURANCE: Work with all major insurers, help document claims, often no out-of-pocket
+
+YOUR ROLE:
+- Answer questions warmly and concisely (2-4 sentences)
+- Collect name, phone, address, and need when ready for a callback
+- For emergencies give the direct number immediately
+- Always end with a helpful next step
+- If asked if you're human, say you're the AI receptionist for Apex Roofing — you answer calls and chat 24/7
+- Never make up info not listed above`;
+
+const hist = [];
+let busy = false;
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function resize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function useSug(t) { document.getElementById('sugs').style.display = 'none'; document.getElementById('inp').value = t; send(); }
+
+function addMsg(role, text) {
+  const c = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'msg' + (role === 'user' ? ' user' : '');
+  d.innerHTML = `<div class="mav ${role}">${role === 'ai' ? 'AR' : 'You'}</div><div class="bub ${role}">${text.replace(/\n/g, '<br>')}</div>`;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'msg'; d.id = 'typ';
+  d.innerHTML = `<div class="mav ai">AR</div><div class="bub ai typing-bub"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+
+function removeTyping() { const e = document.getElementById('typ'); if (e) e.remove(); }
+
+async function send() {
+  if (busy) return;
+  const inp = document.getElementById('inp');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = ''; inp.style.height = 'auto';
+  document.getElementById('sugs').style.display = 'none';
+  document.getElementById('sbtn').disabled = true;
+  busy = true;
+  addMsg('user', txt);
+  hist.push({ role: 'user', content: txt });
+  showTyping();
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYS, messages: hist })
+    });
+    const data = await r.json();
+    removeTyping();
+    const reply = data.content?.[0]?.text || "Sorry, I had a connection issue. Please call us at (720) 555-0190!";
+    hist.push({ role: 'assistant', content: reply });
+    addMsg('ai', reply);
+  } catch (e) {
+    removeTyping();
+    addMsg('ai', "Sorry, having a connection issue. Please call Apex Roofing directly at (720) 555-0190 and we'll get you taken care of right away!");
+  }
+  busy = false;
+  document.getElementById('sbtn').disabled = false;
+  document.getElementById('inp').focus();
+}
+</script>
+</body>
+</html>
