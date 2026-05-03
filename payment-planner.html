@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Payment Planner Demo — ForgeIntellAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --orange:#e8520a;--orange-hot:#ff6520;--orange-glow:rgba(232,82,10,0.1);
+  --black:#060608;--dark:#0d0e11;--card:#13141a;--card2:#191b22;
+  --border:#1e2028;--border2:#272a35;--white:#f0ede8;--muted:#6a6d7a;
+  --grey:#a8aab8;--green:#22c55e;--mono:'DM Mono',monospace;
+  --display:'Bebas Neue',sans-serif;--body:'Barlow',sans-serif;--cond:'Barlow Condensed',sans-serif;
+}
+body{background:var(--black);color:var(--white);font-family:var(--body);min-height:100vh;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--dark);}
+nav img{height:38px;filter:drop-shadow(0 0 8px rgba(232,82,10,0.2));}
+.back-btn{color:var(--muted);text-decoration:none;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;transition:color .2s;}
+.back-btn:hover{color:var(--white);}
+.db{background:#e8520a18;border:1px solid #e8520a30;color:var(--orange);font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;padding:4px 12px;}
+
+.hero{background:linear-gradient(135deg,var(--black),#130a05);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(232,82,10,0.07),transparent);}
+.hero-tag{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;color:var(--orange);text-transform:uppercase;margin-bottom:1rem;position:relative;}
+.hero h1{font-family:var(--display);font-size:clamp(2.5rem,7vw,5rem);letter-spacing:0.04em;line-height:0.95;margin-bottom:1rem;position:relative;}
+.hero h1 span{color:var(--orange);}
+.hero p{font-size:0.95rem;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.7;font-weight:300;position:relative;}
+
+main{max-width:760px;margin:0 auto;padding:2.5rem 1.5rem;}
+
+/* Input card */
+.input-card{background:var(--card);border:1px solid var(--border);position:relative;overflow:hidden;margin-bottom:1.5rem;}
+.input-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
+.card-icon{width:36px;height:36px;background:#e8520a18;border:1px solid #e8520a30;display:flex;align-items:center;justify-content:center;}
+.card-icon svg{width:18px;height:18px;stroke:var(--orange);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.card-title{font-family:var(--cond);font-weight:800;font-size:1.1rem;letter-spacing:0.04em;}
+.card-sub{font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;}
+.card-body{padding:1.75rem 1.5rem;}
+
+/* Cost input */
+.cost-input-wrap{margin-bottom:1.5rem;}
+.cost-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.5rem;display:block;}
+.cost-input-row{display:flex;align-items:center;gap:0;}
+.cost-symbol{background:var(--dark);border:1px solid var(--border2);border-right:none;padding:1rem 1rem;font-family:var(--display);font-size:1.5rem;color:var(--orange);}
+.cost-input{flex:1;background:var(--dark);border:1px solid var(--border2);color:var(--white);font-family:var(--display);font-size:2rem;letter-spacing:0.02em;padding:0.75rem 1rem;outline:none;transition:border-color .2s;border-radius:0;}
+.cost-input:focus{border-color:var(--orange);}
+.cost-input::placeholder{color:var(--border2);}
+
+/* Quick amounts */
+.quick-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.5rem;}
+.quick-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.quick-btn{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.06em;background:transparent;border:1px solid var(--border2);color:var(--muted);padding:6px 14px;cursor:pointer;transition:all .2s;}
+.quick-btn:hover{border-color:var(--orange);color:var(--orange);}
+
+/* Options */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;}
+@media(max-width:480px){.options-grid{grid-template-columns:1fr;}}
+.field label{display:block;font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.4rem;}
+.field select{width:100%;background:var(--dark);border:1px solid var(--border2);color:var(--white);font-family:var(--body);font-size:0.9rem;padding:0.7rem 1rem;outline:none;transition:border-color .2s;border-radius:0;cursor:pointer;}
+.field select:focus{border-color:var(--orange);}
+.field select option{background:#13141a;}
+.field{margin-bottom:0;}
+
+.calc-btn{width:100%;background:var(--orange);color:var(--black);border:none;padding:1rem;font-family:var(--mono);font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:background .2s;font-weight:500;}
+.calc-btn:hover{background:var(--orange-hot);}
+
+/* Results */
+.results{display:none;animation:fadeUp .3s ease;}
+.results.show{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.results-header{background:var(--orange);padding:1.5rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.rh-left{}
+.rh-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;color:rgba(0,0,0,0.6);text-transform:uppercase;margin-bottom:0.25rem;}
+.rh-amount{font-family:var(--display);font-size:2.5rem;color:var(--black);line-height:1;}
+.rh-right{text-align:right;}
+.rh-business{font-family:var(--cond);font-weight:700;font-size:1.1rem;color:var(--black);}
+.rh-date{font-family:var(--mono);font-size:0.62rem;color:rgba(0,0,0,0.5);margin-top:2px;}
+
+/* Payment options grid */
+.payment-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem;}
+.pay-option{background:var(--card);padding:1.5rem;text-align:center;position:relative;overflow:hidden;transition:background .2s;}
+.pay-option::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0;transition:opacity .3s;}
+.pay-option:hover{background:var(--card2);}
+.pay-option:hover::before{opacity:1;}
+.pay-term{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.5rem;}
+.pay-monthly{font-family:var(--display);font-size:2rem;color:var(--orange);line-height:1;}
+.pay-mo-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:0.75rem;}
+.pay-total{font-family:var(--mono);font-size:0.65rem;color:var(--grey);letter-spacing:0.04em;}
+.pay-rate{font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:2px;letter-spacing:0.04em;}
+.pay-badge{position:absolute;top:0.5rem;right:0.5rem;font-family:var(--mono);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;background:var(--orange);color:var(--black);padding:2px 6px;}
+
+/* Breakdown */
+.breakdown-card{background:var(--card);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+.breakdown-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--grey),transparent);}
+.breakdown-title{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+.breakdown-title::before{content:'//';color:var(--orange);}
+.bd-row{display:flex;justify-content:space-between;font-size:0.82rem;padding:0.5rem 0;border-bottom:1px solid var(--border);}
+.bd-row:last-child{border:none;}
+.bd-key{color:var(--muted);font-weight:300;}
+.bd-val{font-weight:500;}
+
+/* Deposit info */
+.deposit-bar{background:var(--dark);border:1px solid var(--border);padding:1.25rem;display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:1.5rem;}
+.deposit-icon{width:32px;height:32px;background:#e8520a18;border:1px solid #e8520a30;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.deposit-icon svg{width:16px;height:16px;stroke:var(--orange);fill:none;stroke-width:1.5;}
+.deposit-text{font-size:0.82rem;color:var(--muted);line-height:1.6;font-weight:300;}
+.deposit-text strong{color:var(--white);}
+
+.cta-row{display:flex;gap:0.75rem;flex-wrap:wrap;}
+.cta-primary{flex:1;background:var(--orange);color:var(--black);border:none;padding:1rem;font-family:var(--mono);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;font-weight:500;text-align:center;text-decoration:none;display:inline-block;min-width:160px;}
+.cta-primary:hover{background:var(--orange-hot);}
+.cta-secondary{background:transparent;color:var(--muted);border:1px solid var(--border2);padding:1rem 1.5rem;font-family:var(--mono);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.cta-secondary:hover{color:var(--white);border-color:var(--grey);}
+
+.disclaimer{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.04em;margin-top:1rem;line-height:1.6;text-align:center;}
+
+.forge-tag{text-align:center;padding:1.5rem;font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;}
+.forge-tag a{color:var(--orange);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav>
+  <img src="logo.png" alt="ForgeIntellAI">
+  <span class="db">Live Demo — Job Payment Planner</span>
+  <a class="back-btn" href="index.html">← Back to site</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Job Payment Planner — Apex Roofing Demo</div>
+  <h1>Big job.<br><span>Smaller payments.</span></h1>
+  <p>Enter your project cost and see exactly what your monthly payments would look like across different financing terms. No surprises, no phone calls needed.</p>
+</div>
+
+<main>
+  <div class="input-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div>
+        <div class="card-title">Project Cost</div>
+        <div class="card-sub">Enter your total quote or estimate</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="cost-input-wrap">
+        <span class="cost-label">Total project cost</span>
+        <div class="cost-input-row">
+          <div class="cost-symbol">$</div>
+          <input class="cost-input" type="number" id="cost" placeholder="8500" min="100" oninput="clearResults()">
+        </div>
+      </div>
+
+      <div class="quick-label">Quick amounts</div>
+      <div class="quick-row">
+        <button class="quick-btn" onclick="setAmount(3500)">$3,500</button>
+        <button class="quick-btn" onclick="setAmount(5000)">$5,000</button>
+        <button class="quick-btn" onclick="setAmount(8500)">$8,500</button>
+        <button class="quick-btn" onclick="setAmount(12000)">$12,000</button>
+        <button class="quick-btn" onclick="setAmount(18000)">$18,000</button>
+        <button class="quick-btn" onclick="setAmount(25000)">$25,000</button>
+      </div>
+
+      <div class="options-grid">
+        <div class="field">
+          <label>Interest rate (APR)</label>
+          <select id="rate">
+            <option value="0">0% — Interest free promo</option>
+            <option value="4.99">4.99% — Excellent credit</option>
+            <option value="7.99" selected>7.99% — Good credit</option>
+            <option value="12.99">12.99% — Average credit</option>
+            <option value="17.99">17.99% — Fair credit</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Deposit paid upfront</label>
+          <select id="deposit">
+            <option value="0">No deposit</option>
+            <option value="10">10% deposit</option>
+            <option value="25">25% deposit</option>
+            <option value="50" selected>50% deposit (standard)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="calculate()">→ Calculate My Payments</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <div class="rh-left">
+        <div class="rh-label">Project total</div>
+        <div class="rh-amount" id="r-total">$8,500</div>
+      </div>
+      <div class="rh-right">
+        <div class="rh-business">Apex Roofing</div>
+        <div class="rh-date" id="r-date"></div>
+      </div>
+    </div>
+
+    <div class="payment-grid" id="payment-grid"></div>
+
+    <div class="breakdown-card">
+      <div class="breakdown-title">Payment breakdown</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <div class="deposit-bar">
+      <div class="deposit-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="deposit-text" id="deposit-info"></div>
+    </div>
+
+    <div class="cta-row">
+      <a class="cta-primary" href="estimate-engine.html">→ Get a full estimate</a>
+      <button class="cta-secondary" onclick="resetCalc()">Calculate different amount</button>
+    </div>
+
+    <div class="disclaimer">* Payment estimates are for illustration purposes only. Actual financing terms are subject to lender approval and may vary. Apex Roofing works with third-party financing partners. Contact us for current financing options and availability.</div>
+  </div>
+
+  <div class="forge-tag">Demo by <a href="index.html">ForgeIntellAI</a> — <a href="index.html#contact">Get this for your business →</a></div>
+</main>
+
+<script>
+function setAmount(val) {
+  document.getElementById('cost').value = val;
+  clearResults();
+}
+
+function clearResults() {
+  document.getElementById('results').classList.remove('show');
+}
+
+function calcMonthly(principal, annualRate, months) {
+  if (annualRate === 0) return principal / months;
+  const r = annualRate / 100 / 12;
+  return principal * (r * Math.pow(1+r, months)) / (Math.pow(1+r, months) - 1);
+}
+
+function calculate() {
+  const cost = parseFloat(document.getElementById('cost').value);
+  const rate = parseFloat(document.getElementById('rate').value);
+  const depositPct = parseInt(document.getElementById('deposit').value);
+
+  if (!cost || cost < 100) { alert('Please enter a valid project cost.'); return; }
+
+  const depositAmt = cost * (depositPct / 100);
+  const financed = cost - depositAmt;
+
+  const terms = [
+    { months: 12, label: '12 months', badge: '' },
+    { months: 24, label: '24 months', badge: 'Popular' },
+    { months: 36, label: '36 months', badge: '' },
+    { months: 48, label: '48 months', badge: '' },
+    { months: 60, label: '60 months', badge: 'Lowest payment' },
+  ];
+
+  // Payment grid
+  document.getElementById('payment-grid').innerHTML = terms.map(t => {
+    const monthly = calcMonthly(financed, rate, t.months);
+    const total = monthly * t.months + depositAmt;
+    const interest = total - cost;
+    return `<div class="pay-option">
+      ${t.badge ? `<div class="pay-badge">${t.badge}</div>` : ''}
+      <div class="pay-term">${t.label}</div>
+      <div class="pay-monthly">$${monthly.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+      <div class="pay-mo-label">per month</div>
+      <div class="pay-total">Total: $${total.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+      <div class="pay-rate">${rate > 0 ? `$${interest.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})} in interest` : 'Interest free'}</div>
+    </div>`;
+  }).join('');
+
+  // Breakdown
+  const monthly24 = calcMonthly(financed, rate, 24);
+  document.getElementById('breakdown-rows').innerHTML = [
+    ['Total project cost', '$' + cost.toLocaleString()],
+    ['Deposit upfront (' + depositPct + '%)', depositAmt > 0 ? '-$' + depositAmt.toLocaleString() : '$0'],
+    ['Amount financed', '$' + financed.toLocaleString()],
+    ['Interest rate (APR)', rate + '%'],
+    ['Example — 24 month payment', '$' + monthly24.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) + '/mo'],
+  ].map(([k,v]) => `<div class="bd-row"><span class="bd-key">${k}</span><span class="bd-val">${v}</span></div>`).join('');
+
+  // Deposit info
+  document.getElementById('deposit-info').innerHTML = depositAmt > 0
+    ? `<strong>$${depositAmt.toLocaleString()} due at signing.</strong> This is your ${depositPct}% deposit which secures your job on our schedule. The remaining $${financed.toLocaleString()} is financed through your chosen payment plan and billed monthly.`
+    : `<strong>No deposit required.</strong> The full $${cost.toLocaleString()} is financed through your chosen payment plan. Some financing options may require a deposit — contact us for details.`;
+
+  document.getElementById('r-total').textContent = '$' + cost.toLocaleString();
+  document.getElementById('r-date').textContent = new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetCalc() {
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('cost').value = '';
+  document.getElementById('cost').focus();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
