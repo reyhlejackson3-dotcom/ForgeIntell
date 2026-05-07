@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForgeIntellAI — Built to Run. Engineered to Last.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --orange:#e8520a;--orange-hot:#ff6520;--orange-glow:rgba(232,82,10,0.12);
+  --black:#080808;--dark:#0f0f0f;--slate:#141414;--card:#1a1a1a;
+  --grey-light:#c8c4be;--grey-mid:#8a8680;--grey-dark:#3a3835;
+  --border:#2a2a2a;--border2:#383838;--white:#f0ede8;--white-dim:#a8a49e;
+  --green:#22c55e;
+  --mono:'DM Mono',monospace;--display:'Bebas Neue',sans-serif;
+  --body:'Barlow',sans-serif;--cond:'Barlow Condensed',sans-serif;
+}
+html{overflow-x:hidden;scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:var(--body);overflow-x:hidden;cursor:none;}
+
+/* CURSOR */
+#cur{position:fixed;width:8px;height:8px;background:var(--orange);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+#cur-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(232,82,10,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+
+/* NOISE TEXTURE helper */
+.noise{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");}
+
+/* FIXED GEAR PANEL — right side, full height strip */
+#gear-panel{
+  position:fixed;right:0;top:0;bottom:0;width:520px;
+  pointer-events:none;z-index:1;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#gear-svg{
+  width:580px;height:580px;flex-shrink:0;
+  filter:drop-shadow(0 0 40px rgba(200,196,190,0.08));
+}
+
+/* Content pushed left to avoid gear */
+.page-content{
+  position:relative;z-index:10;
+  margin-right:420px;
+}
+@media(max-width:1100px){.page-content{margin-right:0;}#gear-panel{opacity:0.4;}}
+@media(max-width:768px){.page-content{margin-right:0;}#gear-panel{display:none;}}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2.5rem;
+  background:rgba(8,8,8,0.95);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(200,196,190,0.12);
+}
+.nav-wordmark{
+  font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--white);
+  display:flex;align-items:center;gap:0;
+}
+.nav-wordmark .forge{color:var(--grey-light);}
+.nav-wordmark .intell{color:var(--orange);font-size:1rem;font-family:var(--cond);font-weight:900;letter-spacing:0.06em;align-self:flex-end;margin-bottom:3px;}
+.nav-wordmark .ai{color:var(--orange);}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.12em;color:var(--grey-mid);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover{color:var(--grey-light);}
+.nav-cta{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;background:var(--orange);color:var(--black);border:none;padding:.55rem 1.4rem;cursor:pointer;transition:background .2s;text-decoration:none;font-weight:500;}
+.nav-cta:hover{background:var(--orange-hot);}
+@media(max-width:768px){.nav-links{display:none;}}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:center;
+  padding:8rem 3rem 4rem;position:relative;overflow:hidden;
+  background-color:var(--black);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+}
+.hero::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0.035;background-image:linear-gradient(rgba(200,196,190,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(200,196,190,0.5) 1px,transparent 1px);background-size:55px 55px;}
+.hero-tag{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.18em;color:var(--orange);text-transform:uppercase;margin-bottom:1.25rem;opacity:0;display:flex;align-items:center;gap:.6rem;}
+.hero-tag::before{content:'//';color:rgba(232,82,10,0.4);}
+.hero-wordmark{
+  font-family:var(--display);
+  font-size:clamp(4rem,9vw,8rem);
+  line-height:0.88;letter-spacing:0.02em;
+  margin-bottom:0.5rem;opacity:0;
+}
+.hero-wordmark .w-forge{display:block;color:var(--grey-light);}
+.hero-wordmark .w-intell{display:block;color:var(--orange);font-size:clamp(2rem,4.5vw,4.5rem);font-family:var(--cond);font-weight:900;letter-spacing:0.06em;}
+.hero-wordmark .w-ai{display:block;color:var(--orange);}
+
+/* RESULTS BAR — full width, thick */
+.results-bar-wrap{
+  width:100vw;position:relative;left:0;right:0;
+  margin-left:calc(-3rem);
+  margin-bottom:2rem;opacity:0;
+}
+.results-bar{
+  width:100%;overflow:hidden;
+  border-top:2px solid rgba(200,196,190,0.2);
+  border-bottom:2px solid rgba(200,196,190,0.2);
+  padding:1rem 0;
+  background:linear-gradient(90deg,rgba(200,196,190,0.06),rgba(200,196,190,0.03),rgba(200,196,190,0.06));
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+.results-track{display:flex;gap:0;white-space:nowrap;animation:scrollLeft 16s linear infinite;}
+@keyframes scrollLeft{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.results-item{display:inline-flex;align-items:center;gap:1.25rem;padding:0 2.5rem;font-family:var(--mono);font-size:0.82rem;letter-spacing:0.1em;color:var(--grey-light);text-transform:uppercase;white-space:nowrap;font-weight:500;}
+.results-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+
+.hero-slogan{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.18em;color:var(--grey-mid);text-transform:uppercase;margin-bottom:2.5rem;opacity:0;border-left:2px solid var(--orange);padding-left:1rem;}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;}
+.btn-primary{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;background:var(--orange);color:var(--black);border:none;padding:.9rem 2.2rem;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;font-weight:500;}
+.btn-primary:hover{background:var(--orange-hot);transform:translateY(-1px);}
+.btn-ghost{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;background:transparent;color:var(--grey-light);border:1px solid rgba(200,196,190,0.25);padding:.9rem 2.2rem;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;}
+.btn-ghost:hover{border-color:var(--grey-light);color:var(--white);}
+.hero-stats{display:flex;gap:2.5rem;margin-top:4rem;flex-wrap:wrap;opacity:0;}
+.hero-stat-val{font-family:var(--display);font-size:2.5rem;color:var(--orange);display:block;line-height:1;}
+.hero-stat-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--grey-mid);text-transform:uppercase;margin-top:4px;}
+
+/* SECTIONS */
+.section{padding:7rem 3rem;position:relative;overflow:hidden;}
+.section-inner{max-width:760px;}
+.sec-tag{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.18em;color:var(--orange);text-transform:uppercase;margin-bottom:0.75rem;display:flex;align-items:center;gap:.6rem;}
+.sec-tag::before{content:'//';color:rgba(232,82,10,0.4);}
+.sec-h2{font-family:var(--display);font-size:clamp(2.5rem,5.5vw,5rem);line-height:.95;letter-spacing:.02em;margin-bottom:1rem;}
+.sec-sub{color:var(--grey-mid);font-size:1rem;line-height:1.75;max-width:540px;font-weight:300;margin-bottom:3rem;}
+
+/* HOW */
+#how{background-color:var(--dark);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");border-top:1px solid var(--border);}
+.how-stack{display:flex;flex-direction:column;gap:1px;background:rgba(200,196,190,0.08);border:1px solid rgba(200,196,190,0.08);}
+.how-item{padding:1.75rem 2rem;background:var(--dark);position:relative;overflow:hidden;transition:background .3s;display:flex;align-items:flex-start;gap:1.5rem;}
+.how-item::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0;transition:opacity .3s;}
+.how-item:hover{background:#1a1a1a;}
+.how-item:hover::after{opacity:1;}
+.how-num{font-family:var(--display);font-size:2.5rem;color:rgba(200,196,190,0.15);line-height:1;flex-shrink:0;width:60px;}
+.how-right{flex:1;}
+.how-title{font-family:var(--cond);font-weight:700;font-size:1.05rem;letter-spacing:.04em;margin-bottom:.4rem;}
+.how-desc{font-size:.83rem;color:var(--grey-mid);line-height:1.65;font-weight:300;}
+
+/* SERVICES */
+#services{background:var(--black);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");border-top:1px solid var(--border);}
+.svc-stack{display:flex;flex-direction:column;gap:1px;background:rgba(200,196,190,0.08);border:1px solid rgba(200,196,190,0.08);}
+.svc-card{background:var(--slate);padding:2rem;position:relative;overflow:hidden;transition:background .25s;}
+.svc-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0;transition:opacity .3s;}
+.svc-card:hover{background:#1c1c1c;}
+.svc-card:hover::after{opacity:1;}
+.svc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;}
+.svc-icon{width:44px;height:44px;border:1px solid rgba(200,196,190,0.15);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(200,196,190,0.1),rgba(200,196,190,0.03));}
+.svc-icon svg{width:20px;height:20px;stroke:var(--orange);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.svc-pricing{text-align:right;}
+.svc-setup{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;color:var(--grey-mid);text-transform:uppercase;}
+.svc-monthly{font-family:var(--display);font-size:1.75rem;color:var(--orange);line-height:1;}
+.svc-name{font-family:var(--cond);font-weight:900;font-size:1.3rem;letter-spacing:.04em;margin-bottom:.4rem;}
+.svc-desc{font-size:.82rem;color:var(--grey-mid);line-height:1.65;margin-bottom:1.25rem;font-weight:300;}
+.svc-features{display:flex;flex-direction:column;gap:.3rem;margin-bottom:1.25rem;}
+.svc-feat{font-family:var(--mono);font-size:.68rem;color:var(--grey-mid);display:flex;align-items:flex-start;gap:.4rem;}
+.svc-feat::before{content:'→';color:var(--orange);flex-shrink:0;}
+.demo-btn{display:inline-block;background:transparent;border:1px solid rgba(200,196,190,0.15);color:var(--grey-mid);font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:.65rem 1.25rem;cursor:pointer;transition:all .2s;text-decoration:none;}
+.demo-btn:hover{border-color:var(--orange);color:var(--orange);background:rgba(232,82,10,0.05);}
+
+/* WIDE CARDS */
+.wide-row{display:flex;flex-direction:column;gap:1px;background:rgba(200,196,190,0.08);border:1px solid rgba(200,196,190,0.08);border-top:none;}
+.wide-card{background:var(--slate);padding:2rem;display:flex;gap:1.5rem;align-items:flex-start;transition:background .25s;position:relative;overflow:hidden;}
+.wide-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0;transition:opacity .3s;}
+.wide-card:hover{background:#1c1c1c;}
+.wide-card:hover::after{opacity:1;}
+.wide-card.cta{background:linear-gradient(135deg,rgba(232,82,10,0.07),var(--slate));border-left:1px solid rgba(232,82,10,0.3);}
+.wide-icon{width:40px;height:40px;border:1px solid rgba(200,196,190,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:linear-gradient(135deg,rgba(200,196,190,0.1),rgba(200,196,190,0.03));}
+.wide-icon svg{width:18px;height:18px;stroke:var(--orange);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.wide-card.cta .wide-icon{background:var(--orange);border-color:var(--orange);}
+.wide-card.cta .wide-icon svg{stroke:var(--black);}
+.wide-name{font-family:var(--cond);font-weight:900;font-size:1.1rem;letter-spacing:.04em;margin-bottom:.3rem;}
+.wide-desc{font-size:.82rem;color:var(--grey-mid);line-height:1.65;margin-bottom:.85rem;font-weight:300;}
+.wide-price{font-family:var(--mono);font-size:.65rem;color:var(--orange);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.75rem;}
+.wide-btn{display:inline-block;background:transparent;border:1px solid rgba(200,196,190,0.15);color:var(--grey-mid);font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:.55rem 1.1rem;cursor:pointer;transition:all .2s;text-decoration:none;}
+.wide-btn:hover{border-color:var(--orange);color:var(--orange);}
+.checkin-btn{display:inline-block;background:var(--orange);color:var(--black);border:none;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.75rem 1.75rem;cursor:pointer;transition:all .2s;text-decoration:none;font-weight:500;}
+.checkin-btn:hover{background:var(--orange-hot);transform:translateY(-1px);}
+
+/* HOTEL */
+#hotel{background-color:#0e0e0e;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");border-top:1px solid var(--border);}
+.hotel-points{display:flex;flex-direction:column;gap:2rem;}
+.hotel-point{display:flex;align-items:flex-start;gap:1rem;}
+.hotel-point-line{width:1px;background:var(--orange);flex-shrink:0;align-self:stretch;min-height:20px;}
+.hotel-point-title{font-family:var(--cond);font-weight:700;font-size:1.1rem;letter-spacing:.04em;color:var(--white);margin-bottom:5px;}
+.hotel-point-desc{font-size:.85rem;color:var(--grey-mid);line-height:1.7;font-weight:300;}
+
+/* VALUE */
+#value{background:var(--dark);border-top:1px solid var(--border);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");}
+.value-headline{font-family:var(--display);font-size:clamp(2rem,4vw,4rem);line-height:.95;letter-spacing:.02em;color:var(--grey-light);margin-bottom:2.5rem;}
+.value-headline span{color:var(--orange);}
+.val-stack{display:flex;flex-direction:column;gap:1px;background:rgba(200,196,190,0.08);border:1px solid rgba(200,196,190,0.08);}
+.val-item{background:var(--dark);padding:1.75rem 2rem;display:flex;gap:1.5rem;align-items:flex-start;position:relative;overflow:hidden;}
+.val-item::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(200,196,190,0.2),transparent);}
+.val-num{font-family:var(--display);font-size:3rem;color:var(--orange);line-height:1;flex-shrink:0;width:100px;}
+.val-right{flex:1;}
+.val-label{font-family:var(--cond);font-weight:700;font-size:1rem;letter-spacing:.04em;margin-bottom:.3rem;}
+.val-desc{font-size:.82rem;color:var(--grey-mid);line-height:1.6;font-weight:300;}
+
+/* PRICING */
+#pricing{background:var(--black);border-top:1px solid var(--border);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
+.pricing-stack{display:flex;flex-direction:column;gap:1px;background:rgba(200,196,190,0.08);border:1px solid rgba(200,196,190,0.08);}
+.price-card{background:var(--slate);padding:2rem;position:relative;overflow:hidden;transition:background .25s;}
+.price-card.featured{background:linear-gradient(135deg,rgba(232,82,10,0.07),var(--slate));border:1px solid rgba(232,82,10,0.2);}
+.price-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:0;transition:opacity .3s;}
+.price-card:hover{background:#1c1c1c;}
+.price-card:hover::after,.price-card.featured::after{opacity:1;}
+.price-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;}
+.price-badge{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:var(--orange);color:var(--black);padding:3px 8px;font-weight:500;}
+.price-tier{font-family:var(--cond);font-weight:700;font-size:1.1rem;letter-spacing:.05em;}
+.price-amount{font-family:var(--display);font-size:3.5rem;color:var(--orange);line-height:1;}
+.price-per{font-family:var(--mono);font-size:.62rem;color:var(--grey-mid);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;}
+.price-saving{font-family:var(--mono);font-size:.65rem;color:var(--green);letter-spacing:.06em;margin-bottom:1rem;}
+.price-rule{width:100%;height:1px;background:rgba(200,196,190,0.1);margin-bottom:1rem;}
+.price-feat{font-family:var(--mono);font-size:.68rem;color:var(--grey-mid);margin-bottom:.4rem;display:flex;align-items:flex-start;gap:.4rem;letter-spacing:.02em;}
+.price-feat::before{content:'→';color:var(--orange);flex-shrink:0;}
+.price-cta{display:inline-block;background:var(--orange);color:var(--black);border:none;padding:.8rem 1.75rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:1.25rem;text-decoration:none;font-weight:500;}
+.price-cta:hover{background:var(--orange-hot);}
+
+/* TESTIMONIALS */
+#testimonials{background:var(--dark);border-top:1px solid var(--border);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");}
+.testi-stack{display:flex;flex-direction:column;gap:1px;background:rgba(200,196,190,0.08);border:1px solid rgba(200,196,190,0.08);}
+.testi-card{background:var(--dark);padding:2rem;transition:background .25s;position:relative;overflow:hidden;}
+.testi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(200,196,190,0.2),transparent);}
+.testi-card:hover{background:#1a1a1a;}
+.testi-stars{font-family:var(--mono);font-size:.65rem;letter-spacing:.2em;color:var(--orange);margin-bottom:1rem;}
+.testi-text{font-size:.88rem;color:var(--grey-light);line-height:1.75;margin-bottom:1.5rem;font-weight:300;font-style:italic;}
+.testi-rule{width:24px;height:1px;background:var(--orange);margin-bottom:1rem;}
+.testi-name{font-family:var(--cond);font-weight:700;font-size:.95rem;letter-spacing:.05em;}
+.testi-role{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;color:var(--grey-mid);margin-top:3px;text-transform:uppercase;}
+
+/* CONTACT */
+#contact{background:var(--black);border-top:1px solid var(--border);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
+.contact-form-wrap{background:var(--slate);border:1px solid var(--border);padding:2rem;position:relative;overflow:hidden;margin-top:2rem;}
+.contact-form-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+.contact-promises{display:flex;flex-direction:column;gap:1.25rem;margin-bottom:2rem;}
+.promise{display:flex;gap:1rem;align-items:flex-start;}
+.promise-line{width:1px;background:var(--orange);flex-shrink:0;align-self:stretch;min-height:16px;}
+.promise-title{font-family:var(--cond);font-weight:700;font-size:.95rem;letter-spacing:.04em;margin-bottom:2px;}
+.promise-desc{font-size:.82rem;color:var(--grey-mid);line-height:1.6;font-weight:300;}
+.form-title{font-family:var(--display);font-size:1.75rem;letter-spacing:.03em;margin-bottom:1.25rem;}
+.field{margin-bottom:.9rem;}
+.field label{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--grey-mid);text-transform:uppercase;margin-bottom:.35rem;}
+.field input,.field select,.field textarea{width:100%;background:var(--dark);border:1px solid var(--border);color:var(--white);font-family:var(--body);font-size:.9rem;padding:.65rem 1rem;outline:none;transition:border-color .2s;border-radius:0;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange);}
+.field select option{background:#111;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+@media(max-width:480px){.field-row{grid-template-columns:1fr;}}
+.form-submit{width:100%;background:var(--orange);color:var(--black);border:none;padding:.9rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s;font-weight:500;margin-top:.25rem;}
+.form-submit:hover{background:var(--orange-hot);}
+.form-success{display:none;text-align:center;padding:2.5rem 1rem;}
+.form-success-title{font-family:var(--display);font-size:2.5rem;color:var(--green);margin-bottom:.5rem;}
+.form-success-sub{font-size:.85rem;color:var(--grey-mid);font-weight:300;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;background:var(--black);}
+.footer-wordmark{font-family:var(--display);font-size:1.25rem;letter-spacing:0.06em;color:var(--grey-light);}
+.footer-wordmark span{color:var(--orange);}
+.footer-copy{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--grey-mid);text-transform:uppercase;}
+.footer-links{display:flex;gap:2rem;}
+.footer-links a{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--grey-mid);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.footer-links a:hover{color:var(--orange);}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(24px);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--dark);}
+::-webkit-scrollbar-thumb{background:var(--border);}
+::-webkit-scrollbar-thumb:hover{background:var(--orange);}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- FIXED GEAR PANEL — always visible right side -->
+<div id="gear-panel">
+  <svg id="gear-svg" viewBox="0 0 580 580" xmlns="http://www.w3.org/2000/svg">
+    <!-- Big gear — grey -->
+    <path fill-rule="evenodd" d="M 264.93,91.58 L 264.37,31.27 L 315.63,31.27 L 315.07,91.58 L 353.51,100.35 L 379.17,45.77 L 425.35,68.01 L 398.68,122.10 L 429.50,146.69 L 476.31,108.64 L 508.27,148.72 L 460.76,185.88 L 477.87,221.41 L 536.54,207.44 L 547.95,257.41 L 489.03,270.28 L 489.03,309.72 L 547.95,322.59 L 536.54,372.56 L 477.87,358.59 L 460.76,394.12 L 508.27,431.28 L 476.31,471.36 L 429.50,433.31 L 398.68,457.90 L 425.35,511.99 L 379.17,534.23 L 353.51,479.65 L 315.07,488.42 L 315.63,548.73 L 264.37,548.73 L 264.93,488.42 L 226.49,479.65 L 200.83,534.23 L 154.65,511.99 L 181.32,457.90 L 150.50,433.31 L 103.69,471.36 L 71.73,431.28 L 119.24,394.12 L 102.13,358.59 L 43.46,372.56 L 32.05,322.59 L 90.97,309.72 L 90.97,270.28 L 32.05,257.41 L 43.46,207.44 L 102.13,221.41 L 119.24,185.88 L 71.73,148.72 L 103.69,108.64 L 150.50,146.69 L 181.32,122.10 L 154.65,68.01 L 200.83,45.77 L 226.49,100.35 Z M 365.00,290.00 L 363.56,275.37 L 359.29,261.30 L 352.36,248.33 L 343.03,236.97 L 331.67,227.64 L 318.70,220.71 L 304.63,216.44 L 290.00,215.00 L 275.37,216.44 L 261.30,220.71 L 248.33,227.64 L 236.97,236.97 L 227.64,248.33 L 220.71,261.30 L 216.44,275.37 L 215.00,290.00 L 216.44,304.63 L 220.71,318.70 L 227.64,331.67 L 236.97,343.03 L 248.33,352.36 L 261.30,359.29 L 275.37,363.56 L 290.00,365.00 L 304.63,363.56 L 318.70,359.29 L 331.67,352.36 L 343.03,343.03 L 352.36,331.67 L 359.29,318.70 L 363.56,304.63 L 365.00,290.00 Z" fill="#c8c4be"/>
+    <!-- Small gear — lighter grey -->
+    <path fill-rule="evenodd" d="M 415.88,346.58 L 415.48,321.27 L 448.52,321.27 L 448.12,346.58 L 471.99,355.27 L 487.95,335.62 L 513.26,356.86 L 496.69,375.99 L 509.38,397.99 L 534.24,393.20 L 539.98,425.74 L 514.98,429.74 L 510.57,454.75 L 532.69,467.06 L 516.17,495.67 L 494.45,482.67 L 475.00,499.00 L 484.03,522.64 L 452.98,533.94 L 444.70,510.02 L 419.30,510.02 L 411.02,533.94 L 379.97,522.64 L 389.00,499.00 L 369.55,482.67 L 347.83,495.67 L 331.31,467.06 L 353.43,454.75 L 349.02,429.74 L 324.02,425.74 L 329.76,393.20 L 354.62,397.99 L 367.31,375.99 L 350.74,356.86 L 376.05,335.62 L 392.01,355.27 Z M 465.00,428.00 L 464.37,421.56 L 462.49,415.37 L 459.44,409.67 L 455.33,404.67 L 450.33,400.56 L 444.63,397.51 L 438.44,395.63 L 432.00,395.00 L 425.56,395.63 L 419.37,397.51 L 413.67,400.56 L 408.67,404.67 L 404.56,409.67 L 401.51,415.37 L 399.63,421.56 L 399.00,428.00 L 399.63,434.44 L 401.51,440.63 L 404.56,446.33 L 408.67,451.33 L 413.67,455.44 L 419.37,458.49 L 425.56,460.37 L 432.00,461.00 L 438.44,460.37 L 444.63,458.49 L 450.33,455.44 L 455.33,451.33 L 459.44,446.33 L 462.49,440.63 L 464.37,434.44 L 465.00,428.00 Z" fill="#a8a49e"/>
+    <!-- Center bolt detail -->
+    <circle cx="290" cy="290" r="18" fill="#e8520a" opacity="0.8"/>
+    <circle cx="290" cy="290" r="8" fill="#c8c4be"/>
+  </svg>
+</div>
+
+<!-- ALL CONTENT LEFT-SHIFTED -->
+<div class="page-content">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-wordmark">
+    <span class="forge">Forge</span><span class="intell">INTELL</span><span class="ai">AI</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#how">Process</a></li>
+    <li><a href="#services">Systems</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="checkout.html" class="nav-cta">Check In →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Built for trades & local business</div>
+
+  <div class="hero-wordmark">
+    <span class="w-forge">Forge</span>
+    <span class="w-intell">INTELL</span>
+    <span class="w-ai">AI</span>
+  </div>
+
+  <!-- RESULTS BAR — full width, thick -->
+  <div class="results-bar-wrap">
+    <div class="results-bar">
+      <div class="results-track">
+        <span class="results-item"><span class="results-dot"></span>Saves dozens of hours weekly</span>
+        <span class="results-item"><span class="results-dot"></span>Thousands saved per client</span>
+        <span class="results-item"><span class="results-dot"></span>Results more accurate than human error</span>
+        <span class="results-item"><span class="results-dot"></span>Replaces that costly employee</span>
+        <span class="results-item"><span class="results-dot"></span>Saves dozens of hours weekly</span>
+        <span class="results-item"><span class="results-dot"></span>Thousands saved per client</span>
+        <span class="results-item"><span class="results-dot"></span>Results more accurate than human error</span>
+        <span class="results-item"><span class="results-dot"></span>Replaces that costly employee</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-slogan">Built to Run. Engineered to Last.</div>
+
+  <div class="hero-actions">
+    <a href="checkout.html" class="btn-primary">Check In →</a>
+    <a href="#services" class="btn-ghost">View Systems</a>
+  </div>
+
+  <div class="hero-stats">
+    <div><span class="hero-stat-val">4</span><span class="hero-stat-label">Active Systems</span></div>
+    <div><span class="hero-stat-val">24/7</span><span class="hero-stat-label">Always Running</span></div>
+    <div><span class="hero-stat-val">3–5</span><span class="hero-stat-label">Days to Live</span></div>
+    <div><span class="hero-stat-val">$0</span><span class="hero-stat-label">Free Demo</span></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="section">
+  <div class="section-inner">
+    <div class="sec-tag reveal">Process</div>
+    <h2 class="sec-h2 reveal">From handshake<br>to live system.</h2>
+    <p class="sec-sub reveal">No tech skills required. No templates. We build every system from scratch — custom to your business, live in days.</p>
+    <div class="how-stack">
+      <div class="how-item reveal"><div class="how-num">01</div><div class="how-right"><div class="how-title">Free Demo Call</div><div class="how-desc">We show you a working version built for your industry before you spend a dollar. No pressure, no pitch deck.</div></div></div>
+      <div class="how-item reveal"><div class="how-num">02</div><div class="how-right"><div class="how-title">We Build It</div><div class="how-desc">You give us your business details. We build your custom system, branded to you. You never touch a line of code.</div></div></div>
+      <div class="how-item reveal"><div class="how-num">03</div><div class="how-right"><div class="how-title">You Go Live</div><div class="how-desc">Your system is live and running. Estimates get sent, materials get calculated, leads get planned — automatically.</div></div></div>
+      <div class="how-item reveal"><div class="how-num">04</div><div class="how-right"><div class="how-title">We Maintain It</div><div class="how-desc">Monthly retainer covers updates, monitoring, and reporting. You focus on the job — we keep the engine running.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEMS -->
+<section id="services" class="section">
+  <div class="section-inner">
+    <div class="sec-tag reveal">Systems</div>
+    <h2 class="sec-h2 reveal">Systems designed to<br><span style="color:var(--orange);">save and make you money.</span></h2>
+    <p class="sec-sub reveal">Each system is custom built for your business, branded to you, and runs 24/7 without you lifting a finger.</p>
+    <div class="svc-stack">
+
+      <div class="svc-card reveal">
+        <div class="svc-top">
+          <div class="svc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div>
+          <div class="svc-pricing"><div class="svc-setup">From $500/mo</div><div class="svc-monthly">Estimate Engine</div></div>
+        </div>
+        <div class="svc-name">Estimate Engine</div>
+        <div class="svc-desc">Customers fill a form and get a branded price range instantly. No site visit needed to quote. You approve and send from your phone in one click.</div>
+        <div class="svc-features">
+          <div class="svc-feat">Custom estimate form on your website</div>
+          <div class="svc-feat">Auto price calculator based on your rates</div>
+          <div class="svc-feat">Branded PDF estimate sent instantly</div>
+          <div class="svc-feat">Owner dashboard to approve and send</div>
+        </div>
+        <a class="demo-btn" href="estimate-engine.html">→ Try the live demo</a>
+      </div>
+
+      <div class="svc-card reveal">
+        <div class="svc-top">
+          <div class="svc-icon"><svg viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M10 20v-6h4v6"/></svg></div>
+          <div class="svc-pricing"><div class="svc-setup">From $500/mo</div><div class="svc-monthly">Material Calculator</div></div>
+        </div>
+        <div class="svc-name">Material Calculator</div>
+        <div class="svc-desc">Enter job dimensions and get an exact material list with quantities and estimated costs instantly. No more guessing, no more over-ordering.</div>
+        <div class="svc-features">
+          <div class="svc-feat">Complete material list from job dimensions</div>
+          <div class="svc-feat">Quantities with waste factor included</div>
+          <div class="svc-feat">Estimated material costs per item</div>
+          <div class="svc-feat">Printable and saveable as PDF</div>
+        </div>
+        <a class="demo-btn" href="material-calculator.html">→ Try the live demo</a>
+      </div>
+
+      <div class="svc-card reveal">
+        <div class="svc-top">
+          <div class="svc-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="svc-pricing"><div class="svc-setup">From $500/mo</div><div class="svc-monthly">Job Payment Planner</div></div>
+        </div>
+        <div class="svc-name">Job Payment Planner</div>
+        <div class="svc-desc">Customers enter their project cost and instantly see monthly payment options across multiple financing terms. Turns sticker shock into a yes.</div>
+        <div class="svc-features">
+          <div class="svc-feat">Instant monthly payment breakdown</div>
+          <div class="svc-feat">Multiple financing term options at once</div>
+          <div class="svc-feat">Adjustable rate and deposit settings</div>
+          <div class="svc-feat">Branded to your business</div>
+        </div>
+        <a class="demo-btn" href="payment-planner.html">→ Try the live demo</a>
+      </div>
+
+      <div class="svc-card reveal">
+        <div class="svc-top">
+          <div class="svc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <div class="svc-pricing"><div class="svc-setup">From $500/mo</div><div class="svc-monthly">AI Receptionist</div></div>
+        </div>
+        <div class="svc-name">AI Receptionist</div>
+        <div class="svc-desc">A 24/7 AI trained on your business that answers real phone calls and website chat. Qualifies leads and books callbacks while you are on the job.</div>
+        <div class="svc-features">
+          <div class="svc-feat">Dedicated phone number — AI answers live</div>
+          <div class="svc-feat">Website chat widget included</div>
+          <div class="svc-feat">Custom trained on your services</div>
+          <div class="svc-feat">Instant owner alert after every lead</div>
+        </div>
+        <a class="demo-btn" href="ai-receptionist.html">→ Try the live demo</a>
+      </div>
+
+    </div>
+    <div class="wide-row">
+      <div class="wide-card reveal">
+        <div class="wide-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <div>
+          <div class="wide-name">Website</div>
+          <div class="wide-desc">A custom professional website built for your business — standalone or with any of our systems already integrated. No templates, built from scratch.</div>
+          <div class="wide-price">$500 one-time · No monthly fee</div>
+          <a href="checkout.html" class="wide-btn">→ Get a website</a>
+        </div>
+      </div>
+      <div class="wide-card cta reveal">
+        <div class="wide-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div>
+          <div class="wide-name">Your Room Is Ready.</div>
+          <div class="wide-desc">Select your systems, fill in your business details, and we will have everything built and live in 3 to 5 days. No tech skills needed — we handle everything.</div>
+          <div class="wide-price" style="color:var(--green);">Live in 3–5 days · Fully custom · No code needed</div>
+          <a href="checkout.html" class="checkin-btn">Check In →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE ROOM -->
+<section id="hotel" class="section">
+  <div class="section-inner">
+    <div class="sec-tag reveal">The Room</div>
+    <h2 class="sec-h2 reveal">Where your systems live.</h2>
+    <p class="sec-sub reveal">Every client gets their own secure Room on our platform — a private hub where their systems run, their data lives, and their tools are always on.</p>
+    <div class="hotel-points">
+      <div class="hotel-point reveal">
+        <div class="hotel-point-line"></div>
+        <div>
+          <div class="hotel-point-title">What is a Room?</div>
+          <div class="hotel-point-desc">When you purchase a system from ForgeIntellAI, your tools are hosted inside your own secure Room on our platform. Think of it like checking into a hotel — you get your own space, your own key, and everything runs independently. Your clients access their dashboards and tools through a unique room key that only you control.</div>
+        </div>
+      </div>
+      <div class="hotel-point reveal">
+        <div class="hotel-point-line"></div>
+        <div>
+          <div class="hotel-point-title">Systems without a website</div>
+          <div class="hotel-point-desc">If you don't purchase the one-time website build, your systems still work — but they are hosted inside your Room on our platform rather than integrated directly into your own website. Your customers access them through a link we provide. The $500 website option moves everything onto your own domain so it looks and feels completely native to your brand with no ForgeIntellAI branding visible.</div>
+        </div>
+      </div>
+      <div class="hotel-point reveal">
+        <div class="hotel-point-line"></div>
+        <div>
+          <div class="hotel-point-title">Your key, your control</div>
+          <div class="hotel-point-desc">Every client gets a unique room key. You control who has access to your tools and dashboards. Only ForgeIntellAI can change the key — meaning if you ever stop paying, access is suspended instantly. As long as your account is active, your Room and everything in it belongs entirely to you.</div>
+        </div>
+      </div>
+      <div class="hotel-point reveal">
+        <div class="hotel-point-line"></div>
+        <div>
+          <div class="hotel-point-title">Always on. Always running.</div>
+          <div class="hotel-point-desc">Your Room never sleeps. Whether a customer submits an estimate at 2am or a contractor needs material quantities on a Saturday job site — your systems are live and delivering results around the clock without you doing anything.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUE -->
+<section id="value" class="section">
+  <div class="section-inner">
+    <div class="sec-tag reveal">Why It Works</div>
+    <div class="value-headline reveal">Systems designed to<br><span>save and make</span><br>you money.</div>
+    <div class="val-stack">
+      <div class="val-item reveal"><div class="val-num">10x</div><div class="val-right"><div class="val-label">More Estimates Sent</div><div class="val-desc">Quote 10 jobs a day instead of 3 — without leaving your office or picking up the phone once.</div></div></div>
+      <div class="val-item reveal"><div class="val-num">$4K+</div><div class="val-right"><div class="val-label">Saved on Materials Monthly</div><div class="val-desc">Stop over-ordering. The material calculator pays for itself on the first job it prevents a mistake on.</div></div></div>
+      <div class="val-item reveal"><div class="val-num">30%</div><div class="val-right"><div class="val-label">More Jobs Closed</div><div class="val-desc">The payment planner removes sticker shock. Customers say yes more when they see monthly numbers instead of a lump sum.</div></div></div>
+      <div class="val-item reveal"><div class="val-num">⅓</div><div class="val-right"><div class="val-label">The Cost of a Receptionist</div><div class="val-desc">Your AI receptionist answers calls and chat 24/7 at a fraction of what even a part-time hire costs you monthly.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section">
+  <div class="section-inner">
+    <div class="sec-tag reveal">Pricing</div>
+    <h2 class="sec-h2 reveal">One price.<br>Stack and save.</h2>
+    <p class="sec-sub reveal">Every system includes setup, hosting, maintenance, and monthly reporting. Stack systems together and pay less per system — the more you build, the better the deal.</p>
+    <div class="pricing-stack">
+
+      <div class="price-card reveal">
+        <div class="price-top">
+          <div class="price-tier">1 System</div>
+        </div>
+        <div class="price-amount">$500</div>
+        <div class="price-per">per month</div>
+        <div class="price-saving">$500 one-time setup fee</div>
+        <div class="price-rule"></div>
+        <div class="price-feat">One custom system of your choice</div>
+        <div class="price-feat">Full setup and deployment</div>
+        <div class="price-feat">Monthly maintenance included</div>
+        <div class="price-feat">Branded to your business</div>
+        <a href="checkout.html" class="price-cta">Get started →</a>
+      </div>
+
+      <div class="price-card reveal">
+        <div class="price-top">
+          <div class="price-tier">2 Systems</div>
+        </div>
+        <div class="price-amount">$750</div>
+        <div class="price-per">per month</div>
+        <div class="price-saving">$750 one-time setup · You save $250/mo vs buying separately</div>
+        <div class="price-rule"></div>
+        <div class="price-feat">Any two systems of your choice</div>
+        <div class="price-feat">Full setup and deployment</div>
+        <div class="price-feat">Monthly maintenance included</div>
+        <div class="price-feat">Branded to your business</div>
+        <a href="checkout.html" class="price-cta">Get started →</a>
+      </div>
+
+      <div class="price-card featured reveal">
+        <div class="price-top">
+          <div class="price-tier">3 Systems</div>
+          <div class="price-badge">Most Popular</div>
+        </div>
+        <div class="price-amount">$1,000</div>
+        <div class="price-per">per month</div>
+        <div class="price-saving">$1,000 one-time setup · You save $500/mo vs buying separately</div>
+        <div class="price-rule"></div>
+        <div class="price-feat">Any three systems of your choice</div>
+        <div class="price-feat">Priority deployment — live in 3 days</div>
+        <div class="price-feat">Monthly maintenance included</div>
+        <div class="price-feat">Branded to your business</div>
+        <a href="checkout.html" class="price-cta">Get started →</a>
+      </div>
+
+      <div class="price-card reveal">
+        <div class="price-top">
+          <div class="price-tier">Full Room — All 4</div>
+        </div>
+        <div class="price-amount">$1,250</div>
+        <div class="price-per">per month</div>
+        <div class="price-saving">$1,250 one-time setup · You save $750/mo vs buying separately</div>
+        <div class="price-rule"></div>
+        <div class="price-feat">All 4 systems included</div>
+        <div class="price-feat">Priority deployment — live in 3 days</div>
+        <div class="price-feat">Monthly maintenance included</div>
+        <div class="price-feat">Full Room access and dashboard</div>
+        <a href="checkout.html" class="price-cta">Check In →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="section">
+  <div class="section-inner">
+    <div class="sec-tag reveal">Verified</div>
+    <h2 class="sec-h2 reveal">Rooms already<br>running.</h2>
+    <div class="testi-stack">
+      <div class="testi-card reveal">
+        <div class="testi-stars">★ ★ ★ ★ ★</div>
+        <div class="testi-text">"I used to drive all over Denver just to give estimates. Now customers fill out the form and I approve quotes from my truck. I am doing twice the jobs with half the running around."</div>
+        <div class="testi-rule"></div>
+        <div class="testi-name">Mike R.</div>
+        <div class="testi-role">Owner, Peak Roofing Co. — Denver, CO</div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★ ★ ★ ★ ★</div>
+        <div class="testi-text">"The material calculator alone saved me thousands in the first month. I was over-ordering on every single job and had no idea. Now I order exactly what I need, nothing more."</div>
+        <div class="testi-rule"></div>
+        <div class="testi-name">Jason T.</div>
+        <div class="testi-role">Owner, Premier Flooring Co. — Aurora, CO</div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★ ★ ★ ★ ★</div>
+        <div class="testi-text">"The AI receptionist paid for itself the first week. A customer called at 10pm on a Sunday about storm damage. The AI handled the whole conversation and booked a callback. I woke up to a new job."</div>
+        <div class="testi-rule"></div>
+        <div class="testi-name">Sarah L.</div>
+        <div class="testi-role">Owner, Flow Right Plumbing — Lakewood, CO</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section">
+  <div class="section-inner">
+    <div class="sec-tag reveal">Contact</div>
+    <h2 class="sec-h2 reveal">Let's build<br>your room.</h2>
+    <div class="contact-promises reveal">
+      <div class="promise"><div class="promise-line"></div><div><div class="promise-title">Free Demo — No Obligation</div><div class="promise-desc">We show you a working version built for your industry before you commit to anything.</div></div></div>
+      <div class="promise"><div class="promise-line"></div><div><div class="promise-title">Live in Days, Not Months</div><div class="promise-desc">Once ready, your system is built and deployed in 3 to 5 business days.</div></div></div>
+      <div class="promise"><div class="promise-line"></div><div><div class="promise-title">We Handle Everything</div><div class="promise-desc">You give us your info. We build, host, and maintain it. You just use it.</div></div></div>
+    </div>
+    <div class="contact-form-wrap reveal">
+      <div class="form-title">Request a Free Demo</div>
+      <div id="form-inner">
+        <form action="https://formspree.io/f/mkoynkbd" method="POST" onsubmit="handleSubmit(event)">
+          <div class="field-row">
+            <div class="field"><label>First Name</label><input type="text" name="first_name" placeholder="John" required></div>
+            <div class="field"><label>Phone</label><input type="tel" name="phone" placeholder="(720) 555-0100" required></div>
+          </div>
+          <div class="field"><label>Business Name</label><input type="text" name="business_name" placeholder="ABC Roofing Co." required></div>
+          <div class="field"><label>Email Address</label><input type="email" name="email" placeholder="john@abcroofing.com" required></div>
+          <div class="field">
+            <label>Systems You Are Interested In</label>
+            <select name="systems">
+              <option value="">Select one</option>
+              <option>Estimate Engine</option>
+              <option>Material Calculator</option>
+              <option>Job Payment Planner</option>
+              <option>AI Receptionist</option>
+              <option>Full Room — all 4 systems</option>
+              <option>Not sure yet — show me everything</option>
+            </select>
+          </div>
+          <button type="submit" class="form-submit">→ Request Free Demo</button>
+        </form>
+      </div>
+      <div class="form-success" id="form-success">
+        <div class="form-success-title">Room Reserved.</div>
+        <div class="form-success-sub">We will reach out within a few hours to schedule your demo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-wordmark">Forge<span>INTELL</span>AI</div>
+  <div class="footer-copy">© 2025 ForgeIntellAI — Built to Run. Engineered to Last.</div>
+  <div class="footer-links">
+    <a href="#services">Systems</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+    <a href="checkout.html">Check In</a>
+  </div>
+</footer>
+
+</div><!-- end page-content -->
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* CURSOR */
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let rx=0,ry=0,mx=window.innerWidth/2,my=window.innerHeight/2;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function a(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a);})();
+
+/* GEAR ROTATION on scroll */
+const gearSvg=document.getElementById('gear-svg');
+window.addEventListener('scroll',()=>{
+  gearSvg.style.transform=`rotate(${window.scrollY*0.05}deg)`;
+});
+
+/* HERO ANIMATIONS */
+const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+tl.to('.hero-tag',{opacity:1,y:0,duration:.8,delay:.15})
+  .to('.hero-wordmark',{opacity:1,y:0,duration:1},'-=.4')
+  .to('.results-bar-wrap',{opacity:1,duration:.7},'-=.3')
+  .to('.hero-slogan',{opacity:1,duration:.7},'-=.2')
+  .to('.hero-actions',{opacity:1,duration:.7},'-=.2')
+  .to('.hero-stats',{opacity:1,duration:.7},'-=.2');
+
+/* SCROLL REVEALS */
+gsap.utils.toArray('.reveal').forEach(el=>{
+  gsap.to(el,{
+    opacity:1,y:0,duration:.85,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}
+  });
+});
+
+/* NAV SCROLL */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+/* FORM */
+function handleSubmit(e){
+  e.preventDefault();
+  fetch(e.target.action,{method:'POST',body:new FormData(e.target),headers:{Accept:'application/json'}})
+  .then(r=>{
+    if(r.ok){document.getElementById('form-inner').style.display='none';document.getElementById('form-success').style.display='block';}
+    else{alert('Something went wrong. Please email reyhlejackson3@gmail.com');}
+  }).catch(()=>alert('Connection error. Please email reyhlejackson3@gmail.com'));
+}
+</script>
+</body>
+</html>
