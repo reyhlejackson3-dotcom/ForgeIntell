@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Calculator — ForgeINTELLAI Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#e8520a;--orange-glow:rgba(232,82,10,.35);--orange-dim:rgba(232,82,10,.12);--black:#050505;--dark:#0d0d0d;--grey:#1e1e1e;--metal:#2c2c2c;--light-grey:#888;--lighter-grey:#b8b8b8;--white:#e4e4e4;--font-head:'Barlow Condensed',sans-serif;--font-mono:'Share Tech Mono',monospace;--font-body:'Barlow',sans-serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh}
+.demo-nav{background:rgba(5,5,5,.95);border-bottom:1px solid var(--grey);padding:1rem 4vw;display:flex;align-items:center;justify-content:space-between}
+.logo-link{font-family:var(--font-head);font-weight:900;font-size:1.3rem;text-decoration:none;text-transform:uppercase}
+.logo-forge{color:#b8b8b8}.logo-intell{color:#b8b8b8}.logo-ai{color:var(--orange)}
+.back-btn{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.1em;color:var(--light-grey);text-decoration:none;text-transform:uppercase;transition:color .2s}.back-btn:hover{color:var(--orange)}
+.demo-badge{background:var(--orange);color:#fff;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.15em;padding:.3rem .9rem}
+.demo-header{text-align:center;padding:4rem 4vw 2rem;border-bottom:1px solid var(--grey)}
+.demo-label{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.15em;color:var(--orange);margin-bottom:.75rem}
+.demo-title{font-family:var(--font-head);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;text-transform:uppercase;margin-bottom:.75rem}
+.demo-sub{font-family:var(--font-mono);font-size:.85rem;color:var(--light-grey);letter-spacing:.08em}
+.demo-body{max-width:880px;margin:3rem auto;padding:0 4vw 4rem}
+.form-card{background:var(--dark);border:1px solid var(--grey);padding:2.5rem;margin-bottom:2rem}
+.form-section-title{font-family:var(--font-head);font-size:1.4rem;font-weight:800;text-transform:uppercase;margin-bottom:1.5rem;letter-spacing:.03em}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem}
+.form-group{display:flex;flex-direction:column;gap:.4rem}
+.form-group.full{grid-column:1/-1}
+label{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;color:var(--light-grey);text-transform:uppercase}
+input,select{background:#0a0a0a;border:1px solid var(--metal);color:var(--white);font-family:var(--font-body);font-size:.95rem;padding:.75rem 1rem;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;border-radius:0}
+input:focus,select:focus{border-color:var(--orange);box-shadow:0 0 12px var(--orange-dim)}
+input::placeholder{color:var(--metal)}
+select option{background:var(--dark)}
+.btn-orange{display:block;background:var(--orange);color:#fff;font-family:var(--font-head);font-weight:800;font-size:1.1rem;letter-spacing:.1em;text-transform:uppercase;padding:.85rem 2rem;border:none;cursor:pointer;width:100%;margin-top:.5rem;transition:background .2s,box-shadow .2s}
+.btn-orange:hover{background:#ff6820;box-shadow:0 0 24px var(--orange-glow)}
+.result-card{background:var(--dark);border:1px solid var(--orange);padding:2.5rem;display:none;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.result-header{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.15em;color:var(--orange);margin-bottom:1.5rem}
+.materials-table{width:100%;border-collapse:collapse}
+.materials-table th{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;color:var(--light-grey);text-transform:uppercase;text-align:left;padding:.6rem 1rem;border-bottom:1px solid var(--grey);background:#0a0a0a}
+.materials-table td{font-family:var(--font-mono);font-size:.82rem;padding:.75rem 1rem;border-bottom:1px solid #151515;color:var(--lighter-grey)}
+.materials-table tr:last-child td{border-bottom:none}
+.materials-table .cost{color:var(--white)}
+.materials-table .total-row td{color:var(--orange);font-size:.9rem;border-top:1px solid var(--grey);padding-top:1rem}
+.waste-note{font-family:var(--font-mono);font-size:.72rem;color:var(--light-grey);margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--grey)}
+.pdf-btn{background:transparent;border:1px solid var(--metal);color:var(--lighter-grey);font-family:var(--font-head);font-weight:800;font-size:.95rem;letter-spacing:.1em;text-transform:uppercase;padding:.7rem 1.5rem;cursor:pointer;width:100%;margin-top:1.5rem;transition:border-color .2s,color .2s}
+.pdf-btn:hover{border-color:var(--orange);color:var(--orange)}
+.total-callout{font-family:var(--font-head);font-size:2.5rem;font-weight:900;color:var(--orange);margin:.75rem 0 .25rem}
+.total-sub{font-family:var(--font-mono);font-size:.78rem;color:var(--light-grey)}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="demo-nav">
+  <a href="index.html" class="logo-link"><span class="logo-forge">Forge</span><span class="logo-intell">INTELL</span><span class="logo-ai">AI</span></a>
+  <span class="demo-badge">LIVE DEMO</span>
+  <a href="index.html" class="back-btn">← Back to Lobby</a>
+</nav>
+
+<div class="demo-header">
+  <div class="demo-label">// SYS-002</div>
+  <h1 class="demo-title">Material Calculator</h1>
+  <p class="demo-sub">From $500/month — Exact material lists with waste factor included</p>
+</div>
+
+<div class="demo-body">
+  <div class="form-card">
+    <div class="form-section-title">Enter Job Dimensions</div>
+    <form id="matForm" onsubmit="calcMaterials(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Trade / Job Type</label>
+          <select id="mTrade" required>
+            <option value="" disabled selected>Select trade…</option>
+            <option value="roofing">Roofing</option>
+            <option value="flooring_hardwood">Flooring — Hardwood</option>
+            <option value="flooring_tile">Flooring — Tile</option>
+            <option value="flooring_carpet">Flooring — Carpet</option>
+            <option value="painting">Interior Painting</option>
+            <option value="drywall">Drywall</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Total Area (sq ft)</label>
+          <input type="number" id="mSqft" placeholder="2200" min="50" required>
+        </div>
+        <div class="form-group">
+          <label>Length (ft)</label>
+          <input type="number" id="mLen" placeholder="44" min="1">
+        </div>
+        <div class="form-group">
+          <label>Width (ft)</label>
+          <input type="number" id="mWid" placeholder="50" min="1">
+        </div>
+        <div class="form-group">
+          <label>Waste Factor Override (%)</label>
+          <input type="number" id="mWaste" placeholder="Leave blank for default" min="0" max="40">
+        </div>
+        <div class="form-group">
+          <label>Material Grade</label>
+          <select id="mGrade">
+            <option value="standard">Standard</option>
+            <option value="mid">Mid-Grade</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-orange">Calculate Material List →</button>
+    </form>
+  </div>
+
+  <div class="result-card" id="matResult">
+    <div class="result-header">// MATERIAL LIST GENERATED</div>
+    <div class="total-callout" id="matTotal">$0</div>
+    <div class="total-sub" id="matTotalSub">Estimated material cost including waste factor</div>
+    <table class="materials-table" id="matTable">
+      <thead><tr><th>Material</th><th>Qty</th><th>Unit</th><th>Unit Cost</th><th class="cost">Total</th></tr></thead>
+      <tbody id="matBody"></tbody>
+    </table>
+    <div class="waste-note" id="wasteNote"></div>
+    <button class="pdf-btn" onclick="alert('In your live system, this generates a printable PDF with your business branding.')">⬇ Print / Save as PDF</button>
+  </div>
+</div>
+
+<script>
+const trades = {
+  roofing: {
+    wastePct: 0.10,
+    items: [
+      { name:'Architectural Shingles', qty: (sqft,w) => (sqft*(1+w)/100).toFixed(1), unit:'squares', unitCost: { standard:110, mid:155, premium:220 } },
+      { name:'Roofing Underlayment', qty: (sqft,w) => (sqft*(1+w)/400).toFixed(1), unit:'rolls', unitCost: { standard:38, mid:55, premium:75 } },
+      { name:'Ridge Cap Shingles', qty: (sqft) => Math.ceil(sqft/200), unit:'bundles', unitCost: { standard:42, mid:58, premium:80 } },
+      { name:'Roofing Nails (1-3/4")', qty: (sqft) => Math.ceil(sqft/500), unit:'boxes', unitCost: { standard:18, mid:18, premium:22 } },
+      { name:'Drip Edge (10ft sections)', qty: (sqft) => Math.ceil(Math.sqrt(sqft)*4.2/10), unit:'pcs', unitCost: { standard:12, mid:16, premium:22 } },
+      { name:'Flashing', qty: (sqft) => Math.ceil(sqft/300), unit:'rolls', unitCost: { standard:28, mid:35, premium:48 } },
+    ]
+  },
+  flooring_hardwood: {
+    wastePct: 0.08,
+    items: [
+      { name:'Hardwood Flooring', qty: (sqft,w) => Math.ceil(sqft*(1+w)), unit:'sq ft', unitCost: { standard:4.50, mid:7.20, premium:12.80 } },
+      { name:'Flooring Underlayment', qty: (sqft,w) => Math.ceil(sqft*(1+w)), unit:'sq ft', unitCost: { standard:0.45, mid:0.65, premium:0.90 } },
+      { name:'Flooring Adhesive', qty: (sqft) => Math.ceil(sqft/200), unit:'gallons', unitCost: { standard:32, mid:40, premium:55 } },
+      { name:'Transition Strips', qty: (sqft) => Math.ceil(Math.sqrt(sqft)/8), unit:'pcs', unitCost: { standard:18, mid:26, premium:38 } },
+      { name:'Nailer / Staples Box', qty: () => 2, unit:'boxes', unitCost: { standard:24, mid:24, premium:28 } },
+    ]
+  },
+  flooring_tile: {
+    wastePct: 0.12,
+    items: [
+      { name:'Floor Tile', qty: (sqft,w) => Math.ceil(sqft*(1+w)), unit:'sq ft', unitCost: { standard:2.80, mid:5.40, premium:9.60 } },
+      { name:'Thinset Mortar (50lb bags)', qty: (sqft) => Math.ceil(sqft/50), unit:'bags', unitCost: { standard:22, mid:28, premium:32 } },
+      { name:'Tile Grout (25lb bags)', qty: (sqft) => Math.ceil(sqft/80), unit:'bags', unitCost: { standard:18, mid:24, premium:30 } },
+      { name:'Backer Board (3x5 sheets)', qty: (sqft,w) => Math.ceil(sqft*(1+w)/15), unit:'sheets', unitCost: { standard:14, mid:14, premium:14 } },
+      { name:'Tile Spacers', qty: () => 3, unit:'bags', unitCost: { standard:6, mid:6, premium:6 } },
+    ]
+  },
+  flooring_carpet: {
+    wastePct: 0.10,
+    items: [
+      { name:'Carpet', qty: (sqft,w) => Math.ceil(sqft*(1+w)/9), unit:'sq yds', unitCost: { standard:18, mid:32, premium:55 } },
+      { name:'Carpet Padding', qty: (sqft,w) => Math.ceil(sqft*(1+w)/9), unit:'sq yds', unitCost: { standard:4.50, mid:7, premium:10 } },
+      { name:'Tack Strips', qty: (sqft) => Math.ceil(Math.sqrt(sqft)*4/4), unit:'strips', unitCost: { standard:1.80, mid:1.80, premium:2.20 } },
+    ]
+  },
+  painting: {
+    wastePct: 0.05,
+    items: [
+      { name:'Interior Paint (1 gal)', qty: (sqft) => Math.ceil(sqft/350*2), unit:'gallons', unitCost: { standard:28, mid:48, premium:72 } },
+      { name:'Primer (1 gal)', qty: (sqft) => Math.ceil(sqft/400), unit:'gallons', unitCost: { standard:22, mid:32, premium:44 } },
+      { name:'Paint Roller Covers', qty: (sqft) => Math.ceil(sqft/600)+2, unit:'pcs', unitCost: { standard:4, mid:6, premium:9 } },
+      { name:'Painter\'s Tape (2")', qty: (sqft) => Math.ceil(sqft/500)+1, unit:'rolls', unitCost: { standard:7, mid:7, premium:9 } },
+      { name:'Drop Cloths', qty: (sqft) => Math.ceil(sqft/400)+1, unit:'pcs', unitCost: { standard:12, mid:16, premium:22 } },
+    ]
+  },
+  drywall: {
+    wastePct: 0.10,
+    items: [
+      { name:'Drywall Sheets (4x8)', qty: (sqft,w) => Math.ceil(sqft*(1+w)/32), unit:'sheets', unitCost: { standard:14, mid:18, premium:24 } },
+      { name:'Joint Compound (5-gal)', qty: (sqft) => Math.ceil(sqft/400), unit:'buckets', unitCost: { standard:24, mid:30, premium:38 } },
+      { name:'Drywall Tape', qty: (sqft) => Math.ceil(sqft/600)+1, unit:'rolls', unitCost: { standard:8, mid:10, premium:14 } },
+      { name:'Drywall Screws (5lb)', qty: (sqft) => Math.ceil(sqft/400)+1, unit:'boxes', unitCost: { standard:14, mid:14, premium:18 } },
+      { name:'Corner Bead', qty: (sqft) => Math.ceil(Math.sqrt(sqft)/3), unit:'pcs', unitCost: { standard:3.50, mid:5, premium:7 } },
+    ]
+  }
+};
+
+function fmt(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function calcMaterials(e) {
+  e.preventDefault();
+  const trade  = document.getElementById('mTrade').value;
+  const sqft   = parseFloat(document.getElementById('mSqft').value) || parseFloat(document.getElementById('mLen').value||0)*parseFloat(document.getElementById('mWid').value||0) || 0;
+  const grade  = document.getElementById('mGrade').value;
+  const wasteIn= parseFloat(document.getElementById('mWaste').value);
+  const td     = trades[trade];
+  const waste  = isNaN(wasteIn) ? td.wastePct : wasteIn/100;
+
+  let grandTotal = 0;
+  const tbody = document.getElementById('matBody');
+  tbody.innerHTML = '';
+
+  td.items.forEach(item => {
+    const qty = parseFloat(item.qty(sqft, waste));
+    const uc  = item.unitCost[grade];
+    const tot = qty * uc;
+    grandTotal += tot;
+    tbody.innerHTML += `<tr>
+      <td>${item.name}</td>
+      <td>${qty}</td>
+      <td>${item.unit}</td>
+      <td>${fmt(uc)}</td>
+      <td class="cost">${fmt(tot)}</td>
+    </tr>`;
+  });
+
+  tbody.innerHTML += `<tr class="total-row">
+    <td colspan="4"><strong>TOTAL ESTIMATED MATERIAL COST</strong></td>
+    <td><strong>${fmt(grandTotal)}</strong></td>
+  </tr>`;
+
+  document.getElementById('matTotal').textContent = fmt(grandTotal);
+  document.getElementById('matTotalSub').textContent = `For ${sqft.toLocaleString()} sq ft · Waste factor: ${Math.round(waste*100)}% included`;
+  document.getElementById('wasteNote').textContent = `// Waste factor of ${Math.round(waste*100)}% applied. All quantities rounded up to prevent shortages. Prices are market estimates and may vary by supplier and region.`;
+
+  const r = document.getElementById('matResult');
+  r.style.display = 'block';
+  setTimeout(() => r.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+}
+</script>
+</body>
+</html>
