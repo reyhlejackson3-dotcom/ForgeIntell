@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Calculator Demo — ForgeIntellAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --orange:#e8520a;--orange-hot:#ff6520;--orange-glow:rgba(232,82,10,0.1);
+  --black:#060608;--dark:#0d0e11;--card:#13141a;--card2:#191b22;
+  --border:#1e2028;--border2:#272a35;--white:#f0ede8;--muted:#6a6d7a;
+  --grey:#a8aab8;--green:#22c55e;--mono:'DM Mono',monospace;
+  --display:'Bebas Neue',sans-serif;--body:'Barlow',sans-serif;--cond:'Barlow Condensed',sans-serif;
+}
+body{background:var(--black);color:var(--white);font-family:var(--body);min-height:100vh;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:var(--dark);}
+nav img{height:38px;filter:drop-shadow(0 0 8px rgba(232,82,10,0.2));}
+.back-btn{color:var(--muted);text-decoration:none;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;transition:color .2s;}
+.back-btn:hover{color:var(--white);}
+.db{background:#e8520a18;border:1px solid #e8520a30;color:var(--orange);font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;padding:4px 12px;}
+
+.hero{background:linear-gradient(135deg,var(--black),#130a05);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(232,82,10,0.07),transparent);}
+.hero-tag{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;color:var(--orange);text-transform:uppercase;margin-bottom:1rem;position:relative;}
+.hero h1{font-family:var(--display);font-size:clamp(2.5rem,7vw,5rem);letter-spacing:0.04em;line-height:0.95;margin-bottom:1rem;position:relative;}
+.hero h1 span{color:var(--orange);}
+.hero p{font-size:0.95rem;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.7;font-weight:300;position:relative;}
+
+main{max-width:860px;margin:0 auto;padding:2.5rem 1.5rem;}
+
+/* Layout */
+.calc-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;}
+@media(max-width:700px){.calc-layout{grid-template-columns:1fr;}}
+
+/* Input panel */
+.panel{background:var(--card);border:1px solid var(--border);position:relative;overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+.panel-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
+.panel-icon{width:36px;height:36px;background:#e8520a18;border:1px solid #e8520a30;display:flex;align-items:center;justify-content:center;}
+.panel-icon svg{width:18px;height:18px;stroke:var(--orange);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.panel-title{font-family:var(--cond);font-weight:800;font-size:1.1rem;letter-spacing:0.04em;}
+.panel-sub{font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;}
+.panel-body{padding:1.5rem;}
+
+.field{margin-bottom:1.1rem;}
+.field label{display:block;font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.4rem;}
+.field input,.field select{width:100%;background:var(--dark);border:1px solid var(--border2);color:var(--white);font-family:var(--body);font-size:0.9rem;padding:0.7rem 1rem;outline:none;transition:border-color .2s;border-radius:0;}
+.field input:focus,.field select:focus{border-color:var(--orange);}
+.field select option{background:#13141a;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.field-note{font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:4px;letter-spacing:0.04em;}
+
+.section-divider{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.12em;color:var(--orange);text-transform:uppercase;margin:1.25rem 0 1rem;display:flex;align-items:center;gap:0.5rem;}
+.section-divider::before{content:'//';color:var(--orange-glow);}
+
+.calc-btn{width:100%;background:var(--orange);color:var(--black);border:none;padding:1rem;font-family:var(--mono);font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:background .2s;font-weight:500;margin-top:.5rem;}
+.calc-btn:hover{background:var(--orange-hot);}
+
+/* Results panel */
+.results-empty{padding:3rem 1.5rem;text-align:center;}
+.empty-icon{width:48px;height:48px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.empty-icon svg{width:22px;height:22px;stroke:var(--muted);fill:none;stroke-width:1.5;}
+.empty-text{font-family:var(--mono);font-size:0.72rem;color:var(--muted);letter-spacing:0.06em;}
+
+.results-content{display:none;padding:1.5rem;}
+.results-content.show{display:block;}
+
+.result-job{font-family:var(--display);font-size:1.5rem;letter-spacing:0.04em;margin-bottom:0.25rem;}
+.result-meta{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:1.5rem;}
+
+.material-list{display:flex;flex-direction:column;gap:0;}
+.mat-item{display:flex;justify-content:space-between;align-items:flex-start;padding:0.75rem 0;border-bottom:1px solid var(--border);}
+.mat-item:last-child{border:none;}
+.mat-name{font-size:0.85rem;font-weight:500;color:var(--white);}
+.mat-detail{font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:2px;letter-spacing:0.04em;}
+.mat-qty{text-align:right;}
+.mat-amount{font-family:var(--cond);font-size:1.1rem;font-weight:700;color:var(--orange);}
+.mat-unit{font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.04em;}
+
+.cost-summary{background:var(--dark);border:1px solid var(--border);padding:1.25rem;margin-top:1.25rem;}
+.cost-row{display:flex;justify-content:space-between;font-size:0.82rem;padding:0.4rem 0;border-bottom:1px solid var(--border);}
+.cost-row:last-child{border:none;}
+.cost-key{color:var(--muted);font-weight:300;}
+.cost-val{font-weight:500;}
+.cost-total{display:flex;justify-content:space-between;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--orange);}
+.cost-total-label{font-family:var(--cond);font-weight:700;font-size:1rem;color:var(--white);}
+.cost-total-val{font-family:var(--display);font-size:1.5rem;color:var(--orange);}
+
+.disclaimer{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.04em;margin-top:1rem;line-height:1.6;}
+
+.print-btn{width:100%;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.75rem;cursor:pointer;transition:all .2s;margin-top:0.75rem;}
+.print-btn:hover{color:var(--white);border-color:var(--grey);}
+
+.forge-tag{text-align:center;padding:1.5rem;font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;}
+.forge-tag a{color:var(--orange);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav>
+  <img src="logo.png" alt="ForgeIntellAI">
+  <span class="db">Live Demo — Material Calculator</span>
+  <a class="back-btn" href="index.html">← Back to site</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Material Calculator — Apex Roofing Demo</div>
+  <h1>Know exactly what<br>your job <span>needs.</span></h1>
+  <p>Enter your roof dimensions and job details. Get a complete material list with quantities and estimated costs — instantly, no site visit needed.</p>
+</div>
+
+<main>
+  <div class="calc-layout">
+
+    <!-- INPUT PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon">
+          <svg viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M10 20v-6h4v6"/></svg>
+        </div>
+        <div>
+          <div class="panel-title">Job Details</div>
+          <div class="panel-sub">Enter your roof measurements</div>
+        </div>
+      </div>
+      <div class="panel-body">
+
+        <div class="section-divider">Roof dimensions</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Length (ft)</label>
+            <input type="number" id="length" placeholder="40" min="1">
+          </div>
+          <div class="field">
+            <label>Width (ft)</label>
+            <input type="number" id="width" placeholder="30" min="1">
+          </div>
+        </div>
+        <div class="field">
+          <label>Number of roof sections / planes</label>
+          <select id="sections">
+            <option value="1">1 — Simple gable</option>
+            <option value="2" selected>2 — Standard gable</option>
+            <option value="3">3 — Hip or L-shape</option>
+            <option value="4">4 — Complex hip</option>
+            <option value="5">5+ — Custom / complex</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Roof pitch</label>
+          <select id="pitch">
+            <option value="1.0">Low — 3/12 to 5/12</option>
+            <option value="1.1" selected>Medium — 6/12 to 8/12</option>
+            <option value="1.2">Steep — 9/12 to 12/12</option>
+            <option value="1.4">Very steep — 12/12+</option>
+          </select>
+          <div class="field-note">Pitch affects total surface area calculation</div>
+        </div>
+
+        <div class="section-divider">Material selection</div>
+        <div class="field">
+          <label>Shingle type</label>
+          <select id="shingle">
+            <option value="3tab">3-Tab asphalt — standard</option>
+            <option value="arch" selected>Architectural asphalt — premium</option>
+            <option value="impact">Impact resistant — Class 4</option>
+            <option value="metal_panel">Metal panels</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Underlayment type</label>
+          <select id="underlay">
+            <option value="felt">15 lb felt — standard</option>
+            <option value="synth" selected>Synthetic — premium</option>
+            <option value="ice">Ice & water shield — full coverage</option>
+          </select>
+        </div>
+
+        <div class="section-divider">Additional details</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Ridge length (ft)</label>
+            <input type="number" id="ridge" placeholder="40" min="0">
+            <div class="field-note">Total length of roof peak</div>
+          </div>
+          <div class="field">
+            <label>Valleys (ft)</label>
+            <input type="number" id="valleys" placeholder="20" min="0">
+            <div class="field-note">Where two roof planes meet</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Number of penetrations</label>
+          <select id="penetrations">
+            <option value="0">None</option>
+            <option value="1">1 — single stack or vent</option>
+            <option value="2" selected>2-3 — typical home</option>
+            <option value="4">4-6 — multiple vents / skylights</option>
+            <option value="8">7+ — complex</option>
+          </select>
+          <div class="field-note">Chimneys, vents, skylights needing flashing</div>
+        </div>
+
+        <button class="calc-btn" onclick="calculate()">→ Calculate Materials</button>
+      </div>
+    </div>
+
+    <!-- RESULTS PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <div>
+          <div class="panel-title">Material List</div>
+          <div class="panel-sub">Complete breakdown with quantities</div>
+        </div>
+      </div>
+
+      <div class="results-empty" id="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="empty-text">Enter job details and click<br>Calculate Materials to see results</div>
+      </div>
+
+      <div class="results-content" id="results">
+        <div class="result-job" id="r-job">Architectural Shingle Replacement</div>
+        <div class="result-meta" id="r-meta">Apex Roofing · Generated just now</div>
+
+        <div class="material-list" id="mat-list"></div>
+
+        <div class="cost-summary" id="cost-summary"></div>
+
+        <div class="disclaimer">* Quantities include standard waste factor (10-15%). Prices are estimates based on current market averages and may vary by supplier and region. Final material costs confirmed at time of order.</div>
+        <button class="print-btn" onclick="window.print()">→ Print / Save as PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="forge-tag">Demo by <a href="index.html">ForgeIntellAI</a> — <a href="index.html#contact">Get this for your business →</a></div>
+</main>
+
+<script>
+// Material pricing per unit (approximate market rates)
+const PRICES = {
+  shingles: { '3tab': 95, 'arch': 115, 'impact': 145, 'metal_panel': 185 }, // per square (100 sqft)
+  underlay: { felt: 28, synth: 48, ice: 85 }, // per square
+  ridge_cap: { '3tab': 42, 'arch': 55, 'impact': 68, 'metal_panel': 75 }, // per bundle (33 LF)
+  starter: 48, // per bundle (105 LF)
+  drip_edge: 2.8, // per LF
+  valley_metal: 3.5, // per LF
+  flashing: 18, // per penetration (pipe boot)
+  step_flashing: 22, // per bundle
+  nails: 52, // per box (7200 ct coil)
+  ice_water: 85, // per square (if not full coverage)
+};
+
+const SHINGLE_LABELS = {
+  '3tab': '3-Tab Asphalt Shingles',
+  'arch': 'Architectural Asphalt Shingles',
+  'impact': 'Impact Resistant Shingles (Class 4)',
+  'metal_panel': 'Metal Roofing Panels'
+};
+const UNDERLAY_LABELS = {
+  felt: '15 lb Felt Underlayment',
+  synth: 'Synthetic Underlayment',
+  ice: 'Ice & Water Shield (Full Coverage)'
+};
+
+function calculate() {
+  const length = parseFloat(document.getElementById('length').value) || 0;
+  const width = parseFloat(document.getElementById('width').value) || 0;
+  const sections = parseInt(document.getElementById('sections').value);
+  const pitchFactor = parseFloat(document.getElementById('pitch').value);
+  const shingle = document.getElementById('shingle').value;
+  const underlay = document.getElementById('underlay').value;
+  const ridge = parseFloat(document.getElementById('ridge').value) || (length * 0.8);
+  const valleys = parseFloat(document.getElementById('valleys').value) || 0;
+  const penetrations = parseInt(document.getElementById('penetrations').value);
+
+  if (!length || !width) { alert('Please enter roof length and width.'); return; }
+
+  // Base area calculation
+  const footprint = length * width * sections;
+  const roofArea = footprint * pitchFactor; // adjusted for pitch
+  const squares = roofArea / 100; // 1 square = 100 sqft
+  const squaresWithWaste = squares * 1.12; // 12% waste factor
+  const squaresRounded = Math.ceil(squaresWithWaste);
+
+  // Perimeter estimate
+  const perimeter = (length + width) * 2 * sections * 0.6;
+
+  // Calculate each material
+  const shingleBundles = Math.ceil(squaresRounded * 3); // 3 bundles per square
+  const underlayRolls = Math.ceil(squaresRounded / 4); // 1 roll covers ~4 squares
+  const ridgeBundles = Math.ceil(ridge / 33);
+  const starterBundles = Math.ceil(perimeter / 105) + 1;
+  const dripEdgeLF = Math.ceil(perimeter * 1.1);
+  const valleyLF = Math.ceil(valleys * 1.1);
+  const flashingCount = penetrations;
+  const nailBoxes = Math.ceil(squaresRounded / 8);
+  const iceWaterSquares = underlay === 'ice' ? 0 : Math.ceil((valleys + (length * 2)) / 100 * 1.5);
+
+  // Costs
+  const shingleCost = squaresRounded * PRICES.shingles[shingle];
+  const underlayCost = underlay === 'ice'
+    ? squaresRounded * PRICES.underlay.ice
+    : underlayRolls * PRICES.underlay[underlay] * 4;
+  const ridgeCost = ridgeBundles * PRICES.ridge_cap[shingle];
+  const starterCost = starterBundles * PRICES.starter;
+  const dripCost = dripEdgeLF * PRICES.drip_edge;
+  const valleyCost = valleyLF * PRICES.valley_metal;
+  const flashCost = flashingCount * PRICES.flashing;
+  const nailCost = nailBoxes * PRICES.nails;
+  const iceWaterCost = iceWaterSquares * PRICES.ice_water;
+
+  const totalMat = shingleCost + underlayCost + ridgeCost + starterCost + dripCost + valleyCost + flashCost + nailCost + iceWaterCost;
+
+  // Build material list
+  const materials = [
+    { name: SHINGLE_LABELS[shingle], detail: `${squaresRounded} squares · ${shingleBundles} bundles`, qty: squaresRounded, unit: 'squares', cost: shingleCost },
+    { name: UNDERLAY_LABELS[underlay], detail: `${underlayRolls} rolls · covers ${squaresRounded} squares`, qty: underlayRolls, unit: 'rolls', cost: underlayCost },
+    { name: 'Ridge Cap', detail: `${ridge.toFixed(0)} LF ridge · ${ridgeBundles} bundles`, qty: ridgeBundles, unit: 'bundles', cost: ridgeCost },
+    { name: 'Starter Strip', detail: `${perimeter.toFixed(0)} LF perimeter · ${starterBundles} bundles`, qty: starterBundles, unit: 'bundles', cost: starterCost },
+    { name: 'Drip Edge', detail: `${dripEdgeLF} LF including corners`, qty: dripEdgeLF, unit: 'LF', cost: dripCost },
+  ];
+
+  if (valleys > 0) materials.push({ name: 'Valley Flashing', detail: `${valleyLF} LF valley metal`, qty: valleyLF, unit: 'LF', cost: valleyCost });
+  if (flashingCount > 0) materials.push({ name: 'Pipe Boots & Flashing', detail: `${flashingCount} penetrations`, qty: flashingCount, unit: 'units', cost: flashCost });
+  if (iceWaterSquares > 0) materials.push({ name: 'Ice & Water Shield', detail: `Eaves & valleys`, qty: iceWaterSquares, unit: 'squares', cost: iceWaterCost });
+  materials.push({ name: 'Roofing Nails (Coil)', detail: `${nailBoxes} box(es) — 7,200 ct`, qty: nailBoxes, unit: 'boxes', cost: nailCost });
+
+  // Render
+  document.getElementById('r-job').textContent = SHINGLE_LABELS[shingle] + ' — ' + (squaresRounded) + ' Squares';
+  document.getElementById('r-meta').textContent = 'Apex Roofing · ' + new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+
+  document.getElementById('mat-list').innerHTML = materials.map(m => `
+    <div class="mat-item">
+      <div>
+        <div class="mat-name">${m.name}</div>
+        <div class="mat-detail">${m.detail}</div>
+      </div>
+      <div class="mat-qty">
+        <div class="mat-amount">${m.qty}</div>
+        <div class="mat-unit">${m.unit}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('cost-summary').innerHTML = `
+    <div style="font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.75rem;">// Estimated Material Costs</div>
+    ${materials.map(m => `<div class="cost-row"><span class="cost-key">${m.name}</span><span class="cost-val">$${m.cost.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span></div>`).join('')}
+    <div class="cost-total">
+      <div class="cost-total-label">Total Materials Est.</div>
+      <div class="cost-total-val">$${totalMat.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+    </div>`;
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('results').classList.add('show');
+}
+</script>
+</body>
+</html>

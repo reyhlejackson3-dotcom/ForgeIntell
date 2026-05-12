@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForgeIntellAI — Built to Run. Engineered to Last.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --or:#e8520a;--orh:#ff6520;--org:rgba(232,82,10,0.1);--orb:rgba(232,82,10,0.25);
+  --bk:#070707;--dk:#0d0d0d;--sl:#111;--cd:#161616;
+  --gl:#c8c4be;--gm:#7a7672;--gd:#3a3835;
+  --bd:#202020;--bd2:#2c2c2c;
+  --wh:#f0ede8;--wd:#9e9a94;--gr:#22c55e;
+  --mn:'DM Mono',monospace;--dp:'Bebas Neue',sans-serif;
+  --bd_:'Barlow',sans-serif;--cn:'Barlow Condensed',sans-serif;
+}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{background:var(--bk);color:var(--wh);font-family:var(--bd_);overflow-x:hidden;cursor:none;}
+
+/* CURSOR */
+#cur{position:fixed;width:8px;height:8px;background:var(--or);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+#curR{position:fixed;width:28px;height:28px;border:1px solid rgba(232,82,10,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+body:has(a:hover) #cur,body:has(button:hover) #cur{width:14px;height:14px;}
+body:has(a:hover) #curR,body:has(button:hover) #curR{width:44px;height:44px;border-color:var(--or);}
+
+/* GEARS - FIXED BACKGROUND */
+#gearBg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.gr-svg{position:absolute;}
+#g1w{bottom:-120px;left:-120px;}
+#g2w{top:-60px;right:-60px;}
+#g3w{top:40%;right:2%;}
+#g4w{bottom:10%;left:5%;}
+
+/* NOISE */
+.noise{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(7,7,7,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--or);}
+.nwm{font-family:var(--dp);font-size:1.7rem;letter-spacing:.06em;line-height:1;text-decoration:none;}
+.nwm .nf{color:var(--gl);}
+.nwm .ni{color:var(--or);}
+.nl{display:flex;gap:2rem;list-style:none;}
+.nl a{font-family:var(--mn);font-size:.65rem;letter-spacing:.12em;color:var(--gm);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.nl a:hover{color:var(--or);}
+.nct{font-family:var(--mn);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;background:var(--or);color:#000;border:none;padding:.55rem 1.5rem;cursor:pointer;transition:background .2s;text-decoration:none;font-weight:500;}
+.nct:hover{background:var(--orh);}
+@media(max-width:900px){.nl{display:none;}}
+
+/* TICKER */
+.ticker{position:fixed;top:56px;left:0;right:0;z-index:99;overflow:hidden;background:rgba(7,7,7,.98);border-top:2px solid var(--or);border-bottom:2px solid var(--or);padding:.7rem 0;}
+.tk-track{display:flex;white-space:nowrap;animation:tk 18s linear infinite;}
+@keyframes tk{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tk-i{display:inline-flex;align-items:center;gap:1.2rem;padding:0 2.5rem;font-family:var(--mn);font-size:.76rem;letter-spacing:.1em;color:var(--gl);text-transform:uppercase;font-weight:500;}
+.tk-d{width:6px;height:6px;border-radius:50%;background:var(--or);flex-shrink:0;}
+
+/* SECTIONS */
+.sec{padding:7rem 2.5rem;position:relative;z-index:2;}
+.si{max-width:1160px;margin:0 auto;}
+.stag{font-family:var(--mn);font-size:.65rem;letter-spacing:.18em;color:var(--or);text-transform:uppercase;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
+.stag::before{content:'//';color:rgba(232,82,10,.35);}
+.sh{font-family:var(--dp);font-size:clamp(2.8rem,5.5vw,6rem);line-height:.93;letter-spacing:.02em;margin-bottom:1rem;}
+.sh .oo{color:var(--or);}
+.ssub{color:var(--gm);font-size:1rem;line-height:1.75;max-width:580px;font-weight:300;margin-bottom:3rem;}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:10rem 2.5rem 5rem;position:relative;z-index:2;overflow:hidden;}
+#hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(200,196,190,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(200,196,190,.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;}
+#hero::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(232,82,10,.07),transparent 70%);pointer-events:none;}
+.hero-inner{max-width:1160px;margin:0 auto;position:relative;z-index:1;}
+.h-wm{font-family:var(--dp);font-size:clamp(5rem,12vw,13rem);line-height:.85;letter-spacing:.02em;margin-bottom:1.5rem;opacity:0;transform:translateY(40px);}
+.h-wm .hf{color:var(--gl);}
+.h-wm .hi{color:var(--or);}
+.h-sl{font-family:var(--mn);font-size:.8rem;letter-spacing:.18em;color:var(--gm);text-transform:uppercase;border-left:2px solid var(--or);padding-left:1rem;margin-bottom:1.25rem;opacity:0;}
+.h-desc{font-size:1.05rem;color:var(--wd);max-width:500px;line-height:1.7;font-weight:300;margin-bottom:2.5rem;opacity:0;}
+.h-acts{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;}
+.btn-p{font-family:var(--mn);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;background:var(--or);color:#000;border:none;padding:.85rem 2rem;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;font-weight:500;}
+.btn-p:hover{background:var(--orh);transform:translateY(-2px);}
+.btn-g{font-family:var(--mn);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;background:transparent;color:var(--gl);border:1px solid rgba(200,196,190,.3);padding:.85rem 2rem;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;}
+.btn-g:hover{border-color:var(--gl);color:var(--wh);}
+.h-stats{display:flex;gap:3.5rem;margin-top:4rem;flex-wrap:wrap;opacity:0;}
+.hsv{font-family:var(--dp);font-size:2.75rem;color:var(--or);display:block;line-height:1;}
+.hsl{font-family:var(--mn);font-size:.6rem;letter-spacing:.1em;color:var(--gm);text-transform:uppercase;margin-top:4px;}
+
+/* PROCESS */
+#process{background-color:var(--dk);border-top:1px solid var(--bd);}
+.proc-list{display:flex;flex-direction:column;gap:1px;background:rgba(200,196,190,.08);border:1px solid rgba(200,196,190,.08);}
+.proc-item{display:flex;gap:2rem;align-items:flex-start;padding:1.75rem 2rem;background:var(--dk);transition:background .3s;position:relative;overflow:hidden;}
+.proc-item::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--or),transparent);opacity:0;transition:opacity .3s;}
+.proc-item:hover{background:#141414;}
+.proc-item:hover::after{opacity:1;}
+.pn{font-family:var(--dp);font-size:3.5rem;color:rgba(200,196,190,.1);line-height:1;flex-shrink:0;width:80px;}
+.pt{font-family:var(--cn);font-weight:700;font-size:1.15rem;letter-spacing:.04em;margin-bottom:.4rem;}
+.pd{font-size:.85rem;color:var(--gm);line-height:1.65;font-weight:300;}
+
+/* SYSTEMS */
+#systems{background-color:var(--bk);border-top:1px solid var(--bd);}
+.sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(200,196,190,.08);border:1px solid rgba(200,196,190,.08);}
+@media(max-width:700px){.sys-grid{grid-template-columns:1fr;}}
+.scard{background:var(--sl);padding:2rem;position:relative;overflow:hidden;transition:all .3s;}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent);opacity:0;transition:opacity .3s;}
+.scard:hover{background:#151515;transform:translateY(-2px);box-shadow:0 8px 40px rgba(232,82,10,.08);}
+.scard:hover::before{opacity:1;}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;}
+.sc-ic{width:46px;height:46px;border:1px solid rgba(200,196,190,.15);display:flex;align-items:center;justify-content:center;background:rgba(200,196,190,.04);}
+.sc-ic svg{width:22px;height:22px;stroke:var(--or);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.sc-nm{font-family:var(--cn);font-weight:900;font-size:1.35rem;letter-spacing:.03em;margin-bottom:.5rem;}
+.sc-ds{font-size:.84rem;color:var(--gm);line-height:1.65;margin-bottom:1.25rem;font-weight:300;}
+.sc-fs{display:flex;flex-direction:column;gap:.3rem;margin-bottom:1.5rem;}
+.sc-f{font-family:var(--mn);font-size:.68rem;color:var(--gm);display:flex;align-items:flex-start;gap:.4rem;}
+.sc-f::before{content:'→';color:var(--or);flex-shrink:0;}
+.demo-btn{display:inline-block;background:transparent;border:1px solid rgba(200,196,190,.2);color:var(--gm);font-family:var(--mn);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:.65rem 1.25rem;cursor:pointer;transition:all .2s;text-decoration:none;}
+.demo-btn:hover{border-color:var(--or);color:var(--or);background:rgba(232,82,10,.05);}
+
+/* WIDE CARDS */
+.wide-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(200,196,190,.08);border:1px solid rgba(200,196,190,.08);border-top:none;}
+@media(max-width:700px){.wide-row{grid-template-columns:1fr;}}
+.wcard{background:var(--sl);padding:2rem;display:flex;gap:1.5rem;align-items:flex-start;transition:background .25s;position:relative;overflow:hidden;}
+.wcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--or),transparent);opacity:0;transition:opacity .3s;}
+.wcard:hover{background:#151515;}
+.wcard:hover::before{opacity:1;}
+.wcard.cta{background:linear-gradient(135deg,rgba(232,82,10,.06),var(--sl));border-left:2px solid rgba(232,82,10,.4);}
+.wic{width:44px;height:44px;border:1px solid rgba(200,196,190,.15);display:flex;align-items:center;justify-content:center;background:rgba(200,196,190,.04);flex-shrink:0;}
+.wic svg{width:20px;height:20px;stroke:var(--or);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.wcard.cta .wic{background:var(--or);border-color:var(--or);}
+.wcard.cta .wic svg{stroke:#000;}
+.wnm{font-family:var(--cn);font-weight:900;font-size:1.15rem;letter-spacing:.03em;margin-bottom:.3rem;}
+.wds{font-size:.82rem;color:var(--gm);line-height:1.65;margin-bottom:.85rem;font-weight:300;}
+.wpr{font-family:var(--mn);font-size:.66rem;color:var(--or);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.8rem;}
+.wbtn{display:inline-block;background:transparent;border:1px solid rgba(200,196,190,.18);color:var(--gm);font-family:var(--mn);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:.6rem 1.1rem;cursor:pointer;transition:all .2s;text-decoration:none;}
+.wbtn:hover{border-color:var(--or);color:var(--or);}
+.cta-btn{display:inline-block;background:var(--or);color:#000;border:none;font-family:var(--mn);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.75rem 1.75rem;cursor:pointer;transition:all .2s;text-decoration:none;font-weight:500;}
+.cta-btn:hover{background:var(--orh);transform:translateY(-1px);}
+
+/* THE ROOM */
+#room{background-color:var(--dk);border-top:1px solid var(--bd);}
+.room-pts{display:flex;flex-direction:column;gap:1.5rem;}
+.rpt{display:flex;gap:1rem;align-items:flex-start;}
+.rpl{width:2px;background:var(--or);flex-shrink:0;align-self:stretch;min-height:20px;border-radius:1px;}
+.rt{font-family:var(--cn);font-weight:700;font-size:1.05rem;letter-spacing:.04em;margin-bottom:.4rem;}
+.rd{font-size:.85rem;color:var(--gm);line-height:1.7;font-weight:300;}
+
+/* SAVINGS */
+#savings{background-color:var(--bk);border-top:1px solid var(--bd);}
+.sav-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(200,196,190,.08);border:1px solid rgba(200,196,190,.08);margin-top:3rem;}
+@media(max-width:700px){.sav-grid{grid-template-columns:1fr;}}
+.sav-item{background:var(--sl);padding:2.5rem 2rem;position:relative;overflow:hidden;transition:background .3s;}
+.sav-item::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent);}
+.sav-item:hover{background:#141414;}
+.sav-num{font-family:var(--dp);font-size:clamp(3rem,6vw,5.5rem);color:var(--or);line-height:1;margin-bottom:.5rem;}
+.sav-t{font-family:var(--cn);font-weight:800;font-size:1.1rem;letter-spacing:.04em;margin-bottom:.75rem;}
+.sav-d{font-size:.83rem;color:var(--gm);line-height:1.7;font-weight:300;}
+
+/* PRICING */
+#pricing{background-color:var(--dk);border-top:1px solid var(--bd);}
+.price-wrap{max-width:560px;margin:3rem auto 0;}
+.price-card{background:rgba(10,10,10,.95);border:1px solid var(--or);padding:3rem;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(232,82,10,.08),inset 0 0 60px rgba(232,82,10,.04);}
+.price-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent);}
+.pc-lbl{font-family:var(--mn);font-size:.65rem;letter-spacing:.15em;color:var(--or);text-transform:uppercase;margin-bottom:.5rem;}
+.pc-nm{font-family:var(--dp);font-size:2rem;letter-spacing:.04em;margin-bottom:.5rem;}
+.pc-amt{font-family:var(--dp);font-size:5.5rem;color:var(--or);line-height:1;}
+.pc-per{font-family:var(--mn);font-size:.65rem;color:var(--gm);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.35rem;}
+.pc-setup{font-family:var(--mn);font-size:.68rem;color:var(--gr);letter-spacing:.06em;margin-bottom:2rem;}
+.pc-rule{width:100%;height:1px;background:rgba(200,196,190,.1);margin-bottom:1.5rem;}
+.pc-f{font-family:var(--mn);font-size:.7rem;color:var(--gm);margin-bottom:.45rem;display:flex;align-items:flex-start;gap:.4rem;}
+.pc-f::before{content:'→';color:var(--or);flex-shrink:0;}
+.pc-btn{display:block;width:100%;background:var(--or);color:#000;border:none;padding:1rem;font-family:var(--mn);font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:2rem;text-align:center;text-decoration:none;font-weight:500;}
+.pc-btn:hover{background:var(--orh);}
+.addon{background:rgba(200,196,190,.04);border:1px solid rgba(200,196,190,.1);padding:1.5rem 2rem;margin-top:1px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.addon-l .an{font-family:var(--cn);font-weight:700;font-size:1rem;letter-spacing:.04em;margin-bottom:.25rem;}
+.addon-l .ad{font-size:.8rem;color:var(--gm);font-weight:300;}
+.addon-r .ap{font-family:var(--dp);font-size:2rem;color:var(--or);}
+.addon-r .as_{font-family:var(--mn);font-size:.6rem;color:var(--gm);text-transform:uppercase;letter-spacing:.08em;}
+
+/* CONTACT */
+#contact{background-color:var(--bk);border-top:1px solid var(--bd);}
+.contact-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:5rem;align-items:start;}
+@media(max-width:900px){.contact-grid{grid-template-columns:1fr;gap:2.5rem;}}
+.promises{display:flex;flex-direction:column;gap:1.5rem;margin-top:2rem;}
+.promise{display:flex;gap:.85rem;align-items:flex-start;}
+.pline{width:2px;background:var(--or);flex-shrink:0;align-self:stretch;min-height:18px;border-radius:1px;}
+.ptitle{font-family:var(--cn);font-weight:700;font-size:1rem;letter-spacing:.04em;margin-bottom:3px;}
+.pdesc{font-size:.83rem;color:var(--gm);line-height:1.6;font-weight:300;}
+.cform-wrap{background:var(--sl);border:1px solid var(--bd);padding:2.5rem;position:relative;overflow:hidden;}
+.cform-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent);}
+.form-title{font-family:var(--dp);font-size:2rem;letter-spacing:.03em;margin-bottom:1.5rem;}
+.field{margin-bottom:1rem;}
+.field label{display:block;font-family:var(--mn);font-size:.6rem;letter-spacing:.12em;color:var(--gm);text-transform:uppercase;margin-bottom:.4rem;}
+.field input,.field select{width:100%;background:var(--dk);border:1px solid var(--bd2);color:var(--wh);font-family:var(--bd_);font-size:.9rem;padding:.7rem 1rem;outline:none;transition:border-color .2s;border-radius:0;}
+.field input:focus,.field select:focus{border-color:var(--or);}
+.field select option{background:#111;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+@media(max-width:480px){.frow{grid-template-columns:1fr;}}
+.fsub{width:100%;background:var(--or);color:#000;border:none;padding:.9rem;font-family:var(--mn);font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s;font-weight:500;margin-top:.25rem;}
+.fsub:hover{background:var(--orh);}
+.fsuccess{display:none;text-align:center;padding:3rem 1rem;}
+.fsuccess-t{font-family:var(--dp);font-size:3rem;color:var(--gr);margin-bottom:.5rem;letter-spacing:.04em;}
+.fsuccess-s{font-size:.88rem;color:var(--gm);font-weight:300;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--bd);padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;background:var(--bk);position:relative;z-index:2;}
+.fwm{font-family:var(--dp);font-size:1.4rem;letter-spacing:.06em;text-decoration:none;}
+.fwm .ff{color:var(--gl);}
+.fwm .fi{color:var(--or);}
+.fcopy{font-family:var(--mn);font-size:.6rem;letter-spacing:.1em;color:var(--gm);text-transform:uppercase;}
+.flinks{display:flex;gap:2rem;}
+.flinks a{font-family:var(--mn);font-size:.6rem;letter-spacing:.1em;color:var(--gm);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.flinks a:hover{color:var(--or);}
+
+/* REVEAL CLASSES */
+.rv{opacity:0;transform:translateY(32px);}
+.rvl{opacity:0;transform:translateX(-32px);}
+.rvr{opacity:0;transform:translateX(32px);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--dk);}
+::-webkit-scrollbar-thumb{background:var(--bd2);}
+::-webkit-scrollbar-thumb:hover{background:var(--or);}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="curR"></div>
+
+<!-- GEARS BACKGROUND -->
+<div id="gearBg">
+  <div class="gr-svg" id="g1w">
+    <svg width="520" height="520" viewBox="-260 -260 520 520" opacity=".09">
+      <path id="g1" fill-rule="evenodd" d="M -21.7,-196.8 L -22.4,-259.0 L 22.4,-259.0 L 21.7,-196.8 L 55.2,-190.1 L 78.4,-247.9 L 119.9,-230.7 L 95.4,-173.5 L 123.8,-154.5 L 167.3,-199.0 L 199.0,-167.3 L 154.5,-123.8 L 173.5,-95.4 L 230.7,-119.9 L 247.9,-78.4 L 190.1,-55.2 L 196.8,-21.7 L 259.0,-22.4 L 259.0,22.4 L 196.8,21.7 L 190.1,55.2 L 247.9,78.4 L 230.7,119.9 L 173.5,95.4 L 154.5,123.8 L 199.0,167.3 L 167.3,199.0 L 123.8,154.5 L 95.4,173.5 L 119.9,230.7 L 78.4,247.9 L 55.2,190.1 L 21.7,196.8 L 22.4,259.0 L -22.4,259.0 L -21.7,196.8 L -55.2,190.1 L -78.4,247.9 L -119.9,230.7 L -95.4,173.5 L -123.8,154.5 L -167.3,199.0 L -199.0,167.3 L -154.5,123.8 L -173.5,95.4 L -230.7,119.9 L -247.9,78.4 L -190.1,55.2 L -196.8,21.7 L -259.0,22.4 L -259.0,-22.4 L -196.8,-21.7 L -190.1,-55.2 L -247.9,-78.4 L -230.7,-119.9 L -173.5,-95.4 L -154.5,-123.8 L -199.0,-167.3 L -167.3,-199.0 L -123.8,-154.5 L -95.4,-173.5 L -119.9,-230.7 L -78.4,-247.9 L -55.2,-190.1 Z M 72.0,-0.0 L 70.6,-14.0 L 66.5,-27.6 L 59.9,-40.0 L 50.9,-50.9 L 40.0,-59.9 L 27.6,-66.5 L 14.0,-70.6 L -0.0,-72.0 L -14.0,-70.6 L -27.6,-66.5 L -40.0,-59.9 L -50.9,-50.9 L -59.9,-40.0 L -66.5,-27.6 L -70.6,-14.0 L -72.0,0.0 L -70.6,14.0 L -66.5,27.6 L -59.9,40.0 L -50.9,50.9 L -40.0,59.9 L -27.6,66.5 L -14.0,70.6 L 0.0,72.0 L 14.0,70.6 L 27.6,66.5 L 40.0,59.9 L 50.9,50.9 L 59.9,40.0 L 66.5,27.6 L 70.6,14.0 L 72.0,0.0 Z" fill="#c8c4be"/>
+      <circle cx="0" cy="0" r="20" fill="#e8520a" opacity=".6"/>
+      <circle cx="0" cy="0" r="8" fill="#c8c4be"/>
+    </svg>
+  </div>
+  <div class="gr-svg" id="g2w">
+    <svg width="340" height="340" viewBox="-170 -170 340 340" opacity=".09">
+      <path id="g2" fill-rule="evenodd" d="M -19.4,-120.4 L -20.1,-158.7 L 20.1,-158.7 L 19.4,-120.4 L 48.8,-111.8 L 69.0,-144.4 L 102.7,-122.7 L 81.5,-90.8 L 101.5,-67.7 L 136.1,-84.2 L 152.7,-47.7 L 117.6,-32.4 L 122.0,-2.1 L 160.0,2.7 L 154.3,42.4 L 116.5,36.4 L 103.7,64.2 L 133.1,88.8 L 106.8,119.1 L 78.3,93.6 L 52.6,110.1 L 64.0,146.7 L 25.5,158.0 L 15.3,121.0 L -15.3,121.0 L -25.5,158.0 L -64.0,146.7 L -52.6,110.1 L -78.3,93.6 L -106.8,119.1 L -133.1,88.8 L -103.7,64.2 L -116.5,36.4 L -154.3,42.4 L -160.0,2.7 L -122.0,-2.1 L -117.6,-32.4 L -152.7,-47.7 L -136.1,-84.2 L -101.5,-67.7 L -81.5,-90.8 L -102.7,-122.7 L -69.0,-144.4 L -48.8,-111.8 Z M 46.0,-0.0 L 45.1,-9.0 L 42.5,-17.6 L 38.2,-25.6 L 32.5,-32.5 L 25.6,-38.2 L 17.6,-42.5 L 9.0,-45.1 L -0.0,-46.0 L -9.0,-45.1 L -17.6,-42.5 L -25.6,-38.2 L -32.5,-32.5 L -38.2,-25.6 L -42.5,-17.6 L -45.1,-9.0 L -46.0,0.0 L -45.1,9.0 L -42.5,17.6 L -38.2,25.6 L -32.5,32.5 L -25.6,38.2 L -17.6,42.5 L -9.0,45.1 L 0.0,46.0 L 9.0,45.1 L 17.6,42.5 L 25.6,38.2 L 32.5,32.5 L 38.2,25.6 L 42.5,17.6 L 45.1,9.0 L 46.0,0.0 Z" fill="#c8c4be"/>
+      <circle cx="0" cy="0" r="13" fill="#e8520a" opacity=".6"/>
+      <circle cx="0" cy="0" r="5" fill="#c8c4be"/>
+    </svg>
+  </div>
+  <div class="gr-svg" id="g3w">
+    <svg width="240" height="240" viewBox="-120 -120 240 240" opacity=".08">
+      <path id="g3" fill-rule="evenodd" d="M -18.3,-82.0 L -18.9,-108.4 L 18.9,-108.4 L 18.3,-82.0 L 45.0,-70.9 L 63.3,-90.0 L 90.0,-63.3 L 70.9,-45.0 L 82.0,-18.3 L 108.4,-18.9 L 108.4,18.9 L 82.0,18.3 L 70.9,45.0 L 90.0,63.3 L 63.3,90.0 L 45.0,70.9 L 18.3,82.0 L 18.9,108.4 L -18.9,108.4 L -18.3,82.0 L -45.0,70.9 L -63.3,90.0 L -90.0,63.3 L -70.9,45.0 L -82.0,18.3 L -108.4,18.9 L -108.4,-18.9 L -82.0,-18.3 L -70.9,-45.0 L -90.0,-63.3 L -63.3,-90.0 L -45.0,-70.9 Z M 32.0,-0.0 L 31.4,-6.2 L 29.6,-12.2 L 26.6,-17.8 L 22.6,-22.6 L 17.8,-26.6 L 12.2,-29.6 L 6.2,-31.4 L -0.0,-32.0 L -6.2,-31.4 L -12.2,-29.6 L -17.8,-26.6 L -22.6,-22.6 L -26.6,-17.8 L -29.6,-12.2 L -31.4,-6.2 L -32.0,0.0 L -31.4,6.2 L -29.6,12.2 L -26.6,17.8 L -22.6,22.6 L -17.8,26.6 L -12.2,29.6 L -6.2,31.4 L 0.0,32.0 L 6.2,31.4 L 12.2,29.6 L 17.8,26.6 L 22.6,22.6 L 26.6,17.8 L 29.6,12.2 L 31.4,6.2 L 32.0,0.0 Z" fill="#b8b4ae"/>
+      <circle cx="0" cy="0" r="9" fill="#e8520a" opacity=".5"/>
+      <circle cx="0" cy="0" r="4" fill="#b8b4ae"/>
+    </svg>
+  </div>
+  <div class="gr-svg" id="g4w">
+    <svg width="400" height="400" viewBox="-200 -200 400 400" opacity=".07">
+      <path id="g4" fill-rule="evenodd" d="M -19.6,-143.7 L -20.2,-188.9 L 20.2,-188.9 L 19.6,-143.7 L 49.4,-136.3 L 69.9,-176.7 L 105.7,-157.9 L 84.1,-118.1 L 107.1,-97.7 L 144.0,-123.9 L 166.9,-90.7 L 129.4,-65.5 L 140.3,-36.7 L 185.1,-42.8 L 190.0,-2.8 L 145.0,2.1 L 141.3,32.7 L 183.8,48.1 L 169.5,85.8 L 127.4,69.2 L 109.9,94.6 L 140.4,128.0 L 110.2,154.8 L 80.6,120.5 L 53.4,134.8 L 64.8,178.6 L 25.6,188.3 L 15.4,144.2 L -15.4,144.2 L -25.6,188.3 L -64.8,178.6 L -53.4,134.8 L -80.6,120.5 L -110.2,154.8 L -140.4,128.0 L -109.9,94.6 L -127.4,69.2 L -169.5,85.8 L -183.8,48.1 L -141.3,32.7 L -145.0,2.1 L -190.0,-2.8 L -185.1,-42.8 L -140.3,-36.7 L -129.4,-65.5 L -166.9,-90.7 L -144.0,-123.9 L -107.1,-97.7 L -84.1,-118.1 L -105.7,-157.9 L -69.9,-176.7 L -49.4,-136.3 Z M 55.0,-0.0 L 53.9,-10.7 L 50.8,-21.0 L 45.7,-30.6 L 38.9,-38.9 L 30.6,-45.7 L 21.0,-50.8 L 10.7,-53.9 L -0.0,-55.0 L -10.7,-53.9 L -21.0,-50.8 L -30.6,-45.7 L -38.9,-38.9 L -45.7,-30.6 L -50.8,-21.0 L -53.9,-10.7 L -55.0,0.0 L -53.9,10.7 L -50.8,21.0 L -45.7,30.6 L -38.9,38.9 L -30.6,45.7 L -21.0,50.8 L -10.7,53.9 L 0.0,55.0 L 10.7,53.9 L 21.0,50.8 L 30.6,45.7 L 38.9,38.9 L 45.7,30.6 L 50.8,21.0 L 53.9,10.7 L 55.0,0.0 Z" fill="#a8a49e"/>
+      <circle cx="0" cy="0" r="16" fill="#e8520a" opacity=".45"/>
+      <circle cx="0" cy="0" r="6" fill="#a8a49e"/>
+    </svg>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nwm"><span class="nf">Forge</span><span class="ni">INTELLAI</span></a>
+  <ul class="nl">
+    <li><a href="#process">Process</a></li>
+    <li><a href="#systems">Systems</a></li>
+    <li><a href="#room">The Room</a></li>
+    <li><a href="#savings">Savings</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="checkout.html" class="nct">Check In →</a>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="tk-track">
+    <span class="tk-i"><span class="tk-d"></span>Saves dozens of hours weekly</span>
+    <span class="tk-i"><span class="tk-d"></span>Thousands saved per client</span>
+    <span class="tk-i"><span class="tk-d"></span>Results more accurate than human error</span>
+    <span class="tk-i"><span class="tk-d"></span>Replaces that costly employee</span>
+    <span class="tk-i"><span class="tk-d"></span>Saves dozens of hours weekly</span>
+    <span class="tk-i"><span class="tk-d"></span>Thousands saved per client</span>
+    <span class="tk-i"><span class="tk-d"></span>Results more accurate than human error</span>
+    <span class="tk-i"><span class="tk-d"></span>Replaces that costly employee</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="h-wm"><span class="hf">Forge</span><span class="hi">INTELLAI</span></div>
+    <div class="h-sl">Built to Run. Engineered to Last.</div>
+    <p class="h-desc">Four custom automation systems for your trade business. Five hundred dollars a month. Live in 3 to 5 days.</p>
+    <div class="h-acts">
+      <a href="checkout.html" class="btn-p">Check In →</a>
+      <a href="#process" class="btn-g">See How It Works</a>
+    </div>
+    <div class="h-stats">
+      <div><span class="hsv">4</span><span class="hsl">Systems Included</span></div>
+      <div><span class="hsv">$500</span><span class="hsl">Per Month</span></div>
+      <div><span class="hsv">3–5</span><span class="hsl">Days to Live</span></div>
+      <div><span class="hsv">$0</span><span class="hsl">Free Demo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process" class="sec noise" style="background-color:var(--dk);border-top:1px solid var(--bd);">
+  <div class="si">
+    <div class="stag rv">Process</div>
+    <h2 class="sh rv">From handshake<br>to <span class="oo">live system.</span></h2>
+    <p class="ssub rv">No tech skills required. No templates. Custom built for your business, live in days.</p>
+    <div class="proc-list">
+      <div class="proc-item rv"><div class="pn">01</div><div><div class="pt">Free Demo Call</div><div class="pd">We show you a working version built for your trade before you spend anything. No pressure, no pitch.</div></div></div>
+      <div class="proc-item rv"><div class="pn">02</div><div><div class="pt">We Build It</div><div class="pd">You give us your business details. We build all four systems custom to your operation. You never touch code.</div></div></div>
+      <div class="proc-item rv"><div class="pn">03</div><div><div class="pt">You Go Live</div><div class="pd">Your systems are live in 3 to 5 days. Estimates sent, materials calculated, payments planned, calls answered automatically.</div></div></div>
+      <div class="proc-item rv"><div class="pn">04</div><div><div class="pt">We Maintain It</div><div class="pd">Monthly retainer covers all updates, monitoring, and reporting. You stay on the job. We keep the engine running.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEMS -->
+<section id="systems" class="sec" style="background-color:var(--bk);border-top:1px solid var(--bd);">
+  <div class="si">
+    <div class="stag rv">Systems</div>
+    <h2 class="sh rv">Four systems. One room.<br><span class="oo">Five hundred a month.</span></h2>
+    <p class="ssub rv">Every client gets all four systems custom built for their business, branded to them, and running 24 hours a day without them lifting a finger.</p>
+    <div class="sys-grid">
+      <div class="scard rv">
+        <div class="sc-top"><div class="sc-ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div></div>
+        <div class="sc-nm">Estimate Engine</div>
+        <div class="sc-ds">Customers fill out a form and get a branded price range instantly. No site visit needed to quote. You approve and send from your phone in one click.</div>
+        <div class="sc-fs"><div class="sc-f">Custom estimate form on your website</div><div class="sc-f">Auto price calculator based on your rates</div><div class="sc-f">Branded estimate sent instantly</div><div class="sc-f">Owner dashboard to approve and send</div></div>
+        <a class="demo-btn" href="estimate-engine.html">→ Try the live demo</a>
+      </div>
+      <div class="scard rv">
+        <div class="sc-top"><div class="sc-ic"><svg viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M10 20v-6h4v6"/></svg></div></div>
+        <div class="sc-nm">Material Calculator</div>
+        <div class="sc-ds">Enter job dimensions and get a complete material list with quantities and estimated costs instantly. No more guessing, no more over-ordering.</div>
+        <div class="sc-fs"><div class="sc-f">Complete material list from job dimensions</div><div class="sc-f">Quantities with waste factor included</div><div class="sc-f">Estimated material costs per item</div><div class="sc-f">Printable and saveable as PDF</div></div>
+        <a class="demo-btn" href="material-calculator.html">→ Try the live demo</a>
+      </div>
+      <div class="scard rv">
+        <div class="sc-top"><div class="sc-ic"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
+        <div class="sc-nm">Job Payment Planner</div>
+        <div class="sc-ds">Customers enter their project cost and instantly see monthly payment options. Turns sticker shock into a yes before anyone picks up the phone.</div>
+        <div class="sc-fs"><div class="sc-f">Instant monthly payment breakdown</div><div class="sc-f">Multiple financing term options at once</div><div class="sc-f">Adjustable rate and deposit settings</div><div class="sc-f">Lives on your website with no app needed</div></div>
+        <a class="demo-btn" href="payment-planner.html">→ Try the live demo</a>
+      </div>
+      <div class="scard rv">
+        <div class="sc-top"><div class="sc-ic"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div></div>
+        <div class="sc-nm">AI Receptionist</div>
+        <div class="sc-ds">A 24/7 AI trained on your business that answers real phone calls and website chat. Qualifies leads and books callbacks while you are on the job.</div>
+        <div class="sc-fs"><div class="sc-f">Dedicated phone number — AI answers live</div><div class="sc-f">Website chat widget included</div><div class="sc-f">Custom trained on your services and pricing</div><div class="sc-f">Instant owner alert after every lead</div></div>
+        <a class="demo-btn" href="ai-receptionist.html">→ Try the live demo</a>
+      </div>
+    </div>
+    <div class="wide-row">
+      <div class="wcard rv">
+        <div class="wic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <div><div class="wnm">Website</div><div class="wds">A custom professional website built for your business — standalone or with systems already integrated. No templates, built from scratch.</div><div class="wpr">$500 one-time · No monthly fee</div><a href="checkout.html" class="wbtn">→ Get a website</a></div>
+      </div>
+      <div class="wcard cta rv">
+        <div class="wic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div><div class="wnm">Your Room Is Ready.</div><div class="wds">Fill in your business details and we will have everything built and live in 3 to 5 days. No tech skills needed — we handle everything.</div><div class="wpr" style="color:var(--gr);">Live in 3–5 days · Fully custom · No code needed</div><a href="checkout.html" class="cta-btn">Check In →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE ROOM -->
+<section id="room" class="sec noise" style="background-color:var(--dk);border-top:1px solid var(--bd);">
+  <div class="si">
+    <div class="stag rv">The Room</div>
+    <h2 class="sh rv">Where your<br><span class="oo">systems live.</span></h2>
+    <p class="ssub rv">Every client gets their own private Room — a secure hosted space where all four systems run independently, around the clock, just for them.</p>
+    <div class="room-pts">
+      <div class="rpt rv"><div class="rpl"></div><div><div class="rt">Your secure Room</div><div class="rd">When you purchase from ForgeIntellAI your four systems are hosted inside your own secure Room on our platform. Think of it like checking into a hotel — your space, your key, everything running independently just for you. Your Room never sleeps.</div></div></div>
+      <div class="rpt rv"><div class="rpl"></div><div><div class="rt">Without the website upgrade</div><div class="rd">Your systems still work perfectly. Customers access them through a dedicated link we provide. Everything runs in your Room on our platform — nothing is broken, nothing is missing.</div></div></div>
+      <div class="rpt rv"><div class="rpl"></div><div><div class="rt">Website upgrade — $500 one-time</div><div class="rd">Systems integrate directly into your own website on your own domain. Completely native to your brand. No ForgeIntellAI branding visible anywhere. Your customers just see your business working perfectly.</div></div></div>
+      <div class="rpt rv"><div class="rpl"></div><div><div class="rt">Your key. Your control.</div><div class="rd">Every client gets a unique room key. Only ForgeIntellAI can change it. Your Room and everything in it is yours as long as your account is active.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SAVINGS -->
+<section id="savings" class="sec" style="background-color:var(--bk);border-top:1px solid var(--bd);">
+  <div class="si">
+    <div class="stag rv">The Numbers</div>
+    <h2 class="sh rv">Systems designed to<br><span class="oo">save and make you money.</span></h2>
+    <p class="ssub rv">One room. Five hundred a month. Saves you thousands.</p>
+    <div class="sav-grid">
+      <div class="sav-item rv">
+        <div class="sav-num" data-target="1000" data-prefix="$" data-suffix="+">$0+</div>
+        <div class="sav-t">Saved Per Job</div>
+        <div class="sav-d">The material calculator eliminates over-ordering. Trades businesses waste 8 to 15 percent of material budgets per job. On a $10,000 material order that is over $1,000 thrown away. Your calculator pays for itself on the very first job.</div>
+      </div>
+      <div class="sav-item rv">
+        <div class="sav-num">1/12</div>
+        <div class="sav-t">The Cost of a Receptionist</div>
+        <div class="sav-d">The AI Receptionist costs $500 a month. A part time receptionist costs $6,000 a month minimum. One twelfth the cost for a system that works 24 hours a day, never calls in sick, never misses a call.</div>
+      </div>
+      <div class="sav-item rv">
+        <div class="sav-num" data-target="30" data-suffix="%">0%</div>
+        <div class="sav-t">More Jobs Closed</div>
+        <div class="sav-d">The Payment Planner removes sticker shock. Businesses offering payment breakdowns close 30 percent more jobs. On $500K revenue that is $150,000 in additional annual revenue from one tool.</div>
+      </div>
+      <div class="sav-item rv">
+        <div class="sav-num" data-target="10" data-suffix="x">0x</div>
+        <div class="sav-t">More Estimates Sent</div>
+        <div class="sav-d">Quote 10 jobs a day instead of 3 without leaving your office or making a single drive. More estimates means more jobs means more revenue. Every missed quote was money left on the table.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="sec noise" style="background-color:var(--dk);border-top:1px solid var(--bd);">
+  <div class="si">
+    <div class="stag rv" style="justify-content:center;">Pricing</div>
+    <h2 class="sh rv" style="text-align:center;">One room. One price.<br><span class="oo">Everything included.</span></h2>
+    <div class="price-wrap">
+      <div class="price-card rv">
+        <div class="pc-lbl">// Your Room</div>
+        <div class="pc-nm">ForgeIntellAI Room</div>
+        <div class="pc-amt">$500</div>
+        <div class="pc-per">per month</div>
+        <div class="pc-setup">+ $500 one-time setup fee</div>
+        <div class="pc-rule"></div>
+        <div class="pc-f">Estimate Engine — fully custom built</div>
+        <div class="pc-f">Material Calculator — fully custom built</div>
+        <div class="pc-f">Job Payment Planner — fully custom built</div>
+        <div class="pc-f">AI Receptionist — fully custom built</div>
+        <div class="pc-f">Monthly maintenance and updates</div>
+        <div class="pc-f">Branded entirely to your business</div>
+        <div class="pc-f">Live in 3 to 5 business days</div>
+        <a href="checkout.html" class="pc-btn">Check In →</a>
+      </div>
+      <div class="addon rv">
+        <div class="addon-l"><div class="an">Website Integration</div><div class="ad">Systems on your own domain. No ForgeIntellAI branding. Fully custom.</div></div>
+        <div class="addon-r"><div class="ap">$500</div><div class="as_">One-time · No monthly</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="sec" style="background-color:var(--bk);border-top:1px solid var(--bd);">
+  <div class="si">
+    <div class="stag rv">Contact</div>
+    <div class="contact-grid">
+      <div>
+        <h2 class="sh rv">Let us build<br><span class="oo">your room.</span></h2>
+        <div class="promises rv">
+          <div class="promise"><div class="pline"></div><div><div class="ptitle">Free Demo — No Obligation</div><div class="pdesc">We show you a working version before you commit to anything.</div></div></div>
+          <div class="promise"><div class="pline"></div><div><div class="ptitle">Live in Days, Not Months</div><div class="pdesc">Built and deployed in 3 to 5 business days.</div></div></div>
+          <div class="promise"><div class="pline"></div><div><div class="ptitle">We Handle Everything</div><div class="pdesc">You give us your info. We build, host, and maintain it.</div></div></div>
+        </div>
+      </div>
+      <div class="rv">
+        <div class="cform-wrap">
+          <div class="form-title">Request a Free Demo</div>
+          <div id="finner">
+            <form action="https://formspree.io/f/mkoynkbd" method="POST" onsubmit="doForm(event)">
+              <div class="frow">
+                <div class="field"><label>First Name</label><input type="text" name="first_name" placeholder="John" required></div>
+                <div class="field"><label>Phone</label><input type="tel" name="phone" placeholder="(720) 555-0100" required></div>
+              </div>
+              <div class="field"><label>Business Name</label><input type="text" name="business" placeholder="ABC Roofing Co." required></div>
+              <div class="field"><label>Email</label><input type="email" name="email" placeholder="john@abc.com" required></div>
+              <div class="field">
+                <label>Interested in</label>
+                <select name="system">
+                  <option value="">Select one</option>
+                  <option>Estimate Engine</option>
+                  <option>Material Calculator</option>
+                  <option>Job Payment Planner</option>
+                  <option>AI Receptionist</option>
+                  <option>The Full Room — all four systems</option>
+                  <option>Not sure yet — show me everything</option>
+                </select>
+              </div>
+              <button type="submit" class="fsub">→ Request Free Demo</button>
+            </form>
+          </div>
+          <div class="fsuccess" id="fsuccess">
+            <div class="fsuccess-t">Room Reserved.</div>
+            <div class="fsuccess-s">We will reach out within a few hours to schedule your demo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#hero" class="fwm"><span class="ff">Forge</span><span class="fi">INTELLAI</span></a>
+  <div class="fcopy">© 2025 ForgeIntellAI — Built to Run. Engineered to Last.</div>
+  <div class="flinks">
+    <a href="#process">Process</a>
+    <a href="#systems">Systems</a>
+    <a href="#room">The Room</a>
+    <a href="#savings">Savings</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── CURSOR ── */
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let rx=window.innerWidth/2,ry=window.innerHeight/2,mx=rx,my=ry;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function a(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(a);})();
+
+/* ── GEARS — smooth continuous RAF ── */
+let ga=0, gt=0, idle=0.15;
+(function gLoop(){
+  gt+=(ga-gt)*0.03; // gt lazily chases ga — but we drive ga from scroll
+  // idle drift
+  ga+=idle;
+  const r1=ga, r2=-ga*1.35, r3=ga*1.1, r4=-ga*0.8;
+  document.getElementById('g1').setAttribute('transform',`rotate(${r1})`);
+  document.getElementById('g2').setAttribute('transform',`rotate(${r2})`);
+  document.getElementById('g3').setAttribute('transform',`rotate(${r3})`);
+  document.getElementById('g4').setAttribute('transform',`rotate(${r4})`);
+  requestAnimationFrame(gLoop);
+})();
+
+// Speed up gears on scroll
+let lastSY=0, gearBoost=0;
+window.addEventListener('scroll',()=>{
+  const delta=Math.abs(window.scrollY-lastSY);
+  gearBoost=Math.min(delta*0.4, 8);
+  idle=0.15+gearBoost;
+  lastSY=window.scrollY;
+  // Decay boost
+  setTimeout(()=>{ idle=0.15; }, 400);
+},{passive:true});
+
+/* ── HERO ENTRANCE ── */
+gsap.timeline({defaults:{ease:'power3.out',delay:.2}})
+  .to('.h-wm',{opacity:1,y:0,duration:1.1})
+  .to('.h-sl',{opacity:1,duration:.8},'-=.5')
+  .to('.h-desc',{opacity:1,y:0,duration:.8},'-=.5')
+  .to('.h-acts',{opacity:1,y:0,duration:.7},'-=.4')
+  .to('.h-stats',{opacity:1,y:0,duration:.7},'-=.3');
+
+/* ── SCROLL REVEALS ── */
+gsap.utils.toArray('.rv').forEach(el=>{
+  gsap.to(el,{
+    opacity:1,y:0,x:0,duration:.9,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 87%',toggleActions:'play none none none'}
+  });
+});
+
+/* ── COUNTER ANIMATION ── */
+gsap.utils.toArray('[data-target]').forEach(el=>{
+  const target=parseInt(el.dataset.target);
+  const prefix=el.dataset.prefix||'';
+  const suffix=el.dataset.suffix||'';
+  ScrollTrigger.create({
+    trigger:el,start:'top 85%',
+    onEnter:()=>{
+      gsap.to({val:0},{val:target,duration:2,ease:'power2.out',
+        onUpdate:function(){el.textContent=prefix+Math.round(this.targets()[0].val).toLocaleString()+suffix;}
+      });
+    }
+  });
+});
+
+/* ── SMOOTH SCROLL ── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+/* ── FORM ── */
+function doForm(e){
+  e.preventDefault();
+  fetch(e.target.action,{method:'POST',body:new FormData(e.target),headers:{Accept:'application/json'}})
+  .then(r=>{
+    if(r.ok){document.getElementById('finner').style.display='none';document.getElementById('fsuccess').style.display='block';}
+    else alert('Something went wrong. Please email reyhlejackson3@gmail.com');
+  }).catch(()=>alert('Connection error. Please email reyhlejackson3@gmail.com'));
+}
+</script>
+</body>
+</html>
