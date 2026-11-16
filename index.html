@@ -221,6 +221,13 @@ input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px soli
 input::placeholder,textarea::placeholder{color:rgba(251,248,242,.4)}
 .submit-row{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:15px 24px;margin-top:6px}
 .form-note{font-size:.92rem;color:rgba(251,248,242,.58)}
+.form-error{flex-basis:100%;margin:0;font-size:.95rem;color:#F0A47A}
+.form-success{margin-top:clamp(30px,4vw,42px);padding:28px 30px;border:1px solid rgba(217,138,79,.45);border-radius:2px;background:rgba(251,248,242,.05)}
+.form-grid[hidden],.form-success[hidden],.form-error[hidden]{display:none}
+.form-success:focus{outline:none}
+.form-success h3{margin:0 0 8px;color:var(--ember);font-size:1.35rem}
+.form-success p{margin:0}
+.btn[disabled]{opacity:.65;cursor:wait}
 
 /* footer */
 footer{
@@ -480,8 +487,7 @@ footer{
     <!-- [INQ-P2] -->
     <p>We'll work with you to create the right level of support — à la carte, straightforward and tailored to your needs.</p>
 
-    <!-- SETUP: replace YOUR_FORM_ID with the Formspree endpoint before going live -->
-    <form class="form-grid" action="https://formspree.io/f/xjywyaob" method="POST">
+    <form id="inquiryForm" class="form-grid" action="https://formspree.io/f/xjywyaob" method="POST">
       <div class="field">
         <label for="name">Your name</label>
         <input id="name" name="name" type="text" required autocomplete="name">
@@ -526,8 +532,13 @@ footer{
         <button class="btn" type="submit">Inquire about Cowboy Concierge</button>
         <!-- [INQ-NOTE] -->
         <span class="form-note">Event coming up in Nashville? Put a Cowboy on it.</span>
+        <p class="form-error" id="formError" role="alert" hidden>Something went wrong sending your inquiry. Please try again in a moment.</p>
       </div>
     </form>
+    <div class="form-success" id="formSuccess" role="status" tabindex="-1" hidden>
+      <h3>Thanks, we got it.</h3>
+      <p>Your inquiry is on its way. We'll be in touch soon to talk through your event.</p>
+    </div>
   </div>
 </section>
 </main>
@@ -580,6 +591,34 @@ nav.addEventListener('click', function(e){
   wrap.addEventListener('mouseenter', function(){ clearInterval(timer); });
   wrap.addEventListener('mouseleave', restart);
   restart();
+})();
+
+(function(){
+  var form = document.getElementById('inquiryForm');
+  if (!form || !window.fetch) return;
+  var ok = document.getElementById('formSuccess');
+  var err = document.getElementById('formError');
+  var submit = form.querySelector('button[type="submit"]');
+  var label = submit.textContent;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    err.hidden = true;
+    submit.disabled = true;
+    submit.textContent = 'Sending...';
+    fetch(form.action, {method:'POST', body:new FormData(form), headers:{'Accept':'application/json'}})
+      .then(function(r){
+        if (!r.ok) throw new Error('Request failed');
+        form.reset();
+        form.hidden = true;
+        ok.hidden = false;
+        ok.focus();
+      })
+      .catch(function(){
+        err.hidden = false;
+        submit.disabled = false;
+        submit.textContent = label;
+      });
+  });
 })();
 </script>
 </body>
